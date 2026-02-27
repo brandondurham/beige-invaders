@@ -1,5 +1,17 @@
 import kaplay from "kaplay";
-import { COLORS } from "./consts";
+
+const UI_FONT_SIZE = 16;
+const NUM_SHIELDS = 5;
+export const COLOR_ONE = "rgb(159, 150, 137)";
+export const COLOR_TWO = "rgb(121, 111, 100)";
+export const COLOR_THREE = "rgb(84, 77, 66)";
+export const COLOR_SHIELD = "rgb(0, 73, 255)";
+export const COLOR_PLAYER = COLOR_SHIELD;
+export const COLOR_EXPLOSION = "rgb(255, 128, 1)";
+export const COLOR_PLAYER_BULLET = COLOR_SHIELD;
+export const COLOR_ENEMY_BULLET = COLOR_THREE;
+export const COLOR_UFO = "rgb(255, 0, 0)";
+export const COLOR_UI_FONT = [66, 66, 66] as [number, number, number];
 
 export function initGame(canvas: HTMLCanvasElement): () => void {
   const k = kaplay({
@@ -9,11 +21,9 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     crisp: true,
   });
 
-  const themeKeys = Object.keys(COLORS) as (keyof typeof COLORS)[];
-  const theme = COLORS[themeKeys[Math.floor(Math.random() * themeKeys.length)]];
-  const bgColor = () => k.color(...theme.background);
-  const fgColor = () => k.color(...theme.foreground);
-  const font = "'Monaspace Krypton', 'Ringside Extra Wide', 'Monaspace Neon', monospace";
+  const bgColor = () => k.color([246, 236, 214]);
+  const fgColor = () => k.color(COLOR_UI_FONT);
+  const font = "MonaspaceArgon-Medium, 'Ringside Extra Wide', 'Monaspace Neon', monospace";
 
   // ─── SPRITE HELPERS ───
 
@@ -54,46 +64,30 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     return c.toDataURL();
   }
 
-  const shuffled = [...theme.colors].sort(() => Math.random() - 0.5);
-  const [colorA, colorB, colorC, colorD, colorE, colorF, colorG] = shuffled.map(
-    ([r, g, b]) => `rgb(${r},${g},${b})`
-  );
-  const [rgbA, rgbB, rgbC, rgbD] = shuffled as [number, number, number][];
-
   // ─── SPRITES ───
 
   const playerPixels = [
-    0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-    0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-  ].map((v) => (v ? "#32ff03" : null));
+    0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+    1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0,
+    0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+  ].map((v) => (v ? COLOR_PLAYER : null));
   k.loadSprite("player", makeSpriteDataURL(playerPixels, 17, 8, 4));
 
   const enemyAF0 = [
-    0,0,0,1,1,1,1,1,0,0,0,
-    0,1,1,1,1,1,1,1,1,1,0,
-    1,1,1,1,1,1,1,1,1,1,1,
-    1,1,0,1,1,1,1,1,0,1,1,
-    1,1,1,1,1,1,1,1,1,1,1,
-    0,0,1,1,0,0,0,1,1,0,0,
-    0,1,0,1,0,0,0,1,0,1,0,
-    0,0,1,0,0,0,0,0,1,0,0,
-  ].map(v => v ? colorA : null);
+    0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0,
+    1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0,
+  ].map((v) => (v ? COLOR_ONE : null));
   const enemyAF1 = [
-    0,0,0,1,1,1,1,1,0,0,0,
-    0,1,1,1,1,1,1,1,1,1,0,
-    1,1,1,1,1,1,1,1,1,1,1,
-    1,1,0,1,1,1,1,1,0,1,1,
-    1,1,1,1,1,1,1,1,1,1,1,
-    0,1,1,0,0,0,0,0,1,1,0,
-    1,0,0,1,0,0,0,1,0,0,1,
-    0,1,0,0,0,0,0,0,0,1,0,
-  ].map(v => v ? colorA : null);
+    0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0,
+    0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0,
+  ].map((v) => (v ? COLOR_ONE : null));
   k.loadSprite("enemyA", makeSpritesheetDataURL([enemyAF0, enemyAF1], 11, 8, 4), { sliceX: 2 });
 
   const enemyBF0 = [
@@ -105,7 +99,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     1,0,1,1,1,1,1,1,1,0,1,
     1,0,1,0,0,0,0,0,1,0,1,
     0,0,0,1,1,0,1,1,0,0,0,
-  ].map(v => v ? colorB : null);
+  ].map(v => v ? COLOR_TWO : null);
   const enemyBF1 = [
     0,0,1,0,0,0,0,0,1,0,0,
     1,0,0,1,0,0,0,1,0,0,1,
@@ -115,7 +109,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     0,1,1,1,1,1,1,1,1,1,0,
     0,0,1,0,0,0,0,0,1,0,0,
     0,1,0,0,0,0,0,0,0,1,0,
-  ].map(v => v ? colorB : null);
+  ].map(v => v ? COLOR_TWO : null);
   k.loadSprite("enemyB", makeSpritesheetDataURL([enemyBF0, enemyBF1], 11, 8, 4), { sliceX: 2 });
 
   const enemyCF0 = [
@@ -127,7 +121,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     0,0,1,1,1,0,0,1,1,1,0,0,
     0,1,1,0,0,0,0,0,0,1,1,0,
     0,0,1,0,0,0,0,0,0,1,0,0,
-  ].map(v => v ? colorC : null);
+  ].map(v => v ? COLOR_THREE : null);
   const enemyCF1 = [
     0,0,0,0,1,1,1,1,0,0,0,0,
     0,0,0,1,1,1,1,1,1,0,0,0,
@@ -137,7 +131,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     0,0,0,1,0,0,0,0,1,0,0,0,
     0,0,1,0,1,0,0,1,0,1,0,0,
     0,1,0,0,0,0,0,0,0,0,1,0,
-  ].map(v => v ? colorC : null);
+  ].map(v => v ? COLOR_THREE : null);
   k.loadSprite("enemyC", makeSpritesheetDataURL([enemyCF0, enemyCF1], 12, 8, 4), { sliceX: 2 });
 
   const ufoPixels = [
@@ -146,27 +140,29 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
     1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1,
     0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
-  ].map((v) => (v ? colorD : null));
+  ].map((v) => (v ? COLOR_UFO : null));
   k.loadSprite("ufo", makeSpriteDataURL(ufoPixels, 16, 7, 4));
 
-  const bulletPixels = [1,1,1,1,1,1,1,1,1,1,1,1].map((v) => (v ? "#ff0000" : null));
-  k.loadSprite("bullet", makeSpriteDataURL(bulletPixels, 4, 8, 2));
+  const bulletPixels = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1].map((v) =>
+    v ? COLOR_PLAYER_BULLET : null,
+  );
+  k.loadSprite("bullet", makeSpriteDataURL(bulletPixels, 40, 80, 10));
 
   const enemyBulletPixels = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1].map((v) =>
-    v ? "#FFFF00" : null,
+    v ? COLOR_ENEMY_BULLET : null,
   );
-  k.loadSprite("enemyBullet", makeSpriteDataURL(enemyBulletPixels, 4, 8, 2));
+  k.loadSprite("enemyBullet", makeSpriteDataURL(enemyBulletPixels, 10, 20, 2));
 
   const explPixels = [
     0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1,
     0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0,
     1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0,
-  ].map((v) => (v ? "#FFFFFF" : null));
+  ].map((v) => (v ? COLOR_EXPLOSION : null));
   k.loadSprite("explosion", makeSpriteDataURL(explPixels, 8, 8, 4));
 
   const shieldBlock = Array(48)
     .fill(1)
-    .map(() => "#32ff03");
+    .map(() => COLOR_SHIELD);
   k.loadSprite("shield", makeSpriteDataURL(shieldBlock, 8, 6, 2));
 
   // ─── AUDIO ───
@@ -189,6 +185,11 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       osc.stop(audioCtx.currentTime + dur);
     } catch (_) {}
   }
+
+  // ─── PERSISTENCE ───
+
+  const LS_HI_KEY = "beige-invaders-hi";
+  const persistedHiScore = parseInt(localStorage.getItem(LS_HI_KEY) ?? "0", 10) || 0;
 
   // ─── SCENES ───
 
@@ -225,17 +226,17 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     ]);
 
     const scoreTable = [
-      { sprite: "ufo",    label: "= ?", color: rgbD },
-      { sprite: "enemyC", label: "= 30 POINTS", color: rgbC },
-      { sprite: "enemyB", label: "= 20 POINTS", color: rgbB },
-      { sprite: "enemyA", label: "= 10 POINTS", color: rgbA },
+      { sprite: "ufo",    label: "= ?", color: COLOR_UFO },
+      { sprite: "enemyC", label: "= 30 POINTS", color: COLOR_THREE },
+      { sprite: "enemyB", label: "= 20 POINTS", color: COLOR_TWO },
+      { sprite: "enemyA", label: "= 10 POINTS", color: COLOR_ONE },
     ];
 
     scoreTable.forEach((row, i) => {
       k.add([k.sprite(row.sprite), k.pos(W / 2 - 60, H * 0.46 + i * 44), k.scale(0.7), k.anchor("center")]);
       k.add([
         k.text(row.label, { size: 14, font }),
-        k.color(...row.color),
+        k.color(...row.color.match(/\d+/g)!.map(Number) as [number, number, number]),
         k.pos(W / 2 - 20, H * 0.46 + i * 44),
         k.anchor("left"),
       ]);
@@ -255,7 +256,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       blink.opacity = Math.sin(blinkTimer * 4) > 0 ? 1 : 0;
     });
 
-    k.onKeyPress("space", () => k.go("game"));
+    k.onKeyPress("space", () => k.go("game", { hiScore: persistedHiScore }));
   });
 
   k.scene("game", (data: Record<string, number> = {}) => {
@@ -265,7 +266,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     const ENEMY_W = 60;
     const ENEMY_H = 60;
     const GUTTER = 60;
-    const ENEMY_COLS = Math.floor((GAME_W - GUTTER * 2) / ENEMY_W);
+    const ENEMY_COLS = Math.floor((GAME_W - GUTTER * 4) / ENEMY_W);
     const START_X = Math.floor((GAME_W - ENEMY_COLS * ENEMY_W) / 2);
     const START_Y = 90;
 
@@ -295,25 +296,47 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
 
     k.add([k.rect(GAME_W, GAME_H), bgColor(), k.pos(0, 0), k.fixed(), k.z(-10)]);
 
+    k.add([
+      k.text("BEIGE INVADERS", { size: 18, font }),
+      k.color(...COLOR_PLAYER.match(/\d+/g)!.map(Number) as [number, number, number]),
+      k.pos(GAME_W / 2, 22),
+      k.anchor("top"),
+    ]);
     const scoreTxt = k.add([
-      k.text(`SCORE  ${String(score).padStart(4, "0")}`, { size: 18, font }),
+      k.text(`SCORE ${score}`, { size: UI_FONT_SIZE, font }),
       fgColor(),
-      k.pos(24, 30),
-      k.fixed(), k.z(10),
+      k.pos(18, 18),
+      k.anchor("topleft"),
+      k.fixed(),
+      k.z(10),
     ]);
     const hiTxt = k.add([
-      k.text(`HI  ${String(Math.max(hiScore, score)).padStart(4, "0")}`, { size: 18, font }),
+      k.text(`HIGH SCORE ${Math.max(hiScore, score)}`, {
+        size: UI_FONT_SIZE,
+        font,
+      }),
       fgColor(),
-      k.pos(GAME_W / 2, 30),
-      k.anchor("top"),
-      k.fixed(), k.z(10),
+      k.pos(GAME_W - 18, 18),
+      k.anchor("topright"),
+      k.fixed(),
+      k.z(10),
     ]);
     const livesTxt = k.add([
-      k.text(`LIVES ${lives}`, { size: 18, font }),
+      k.text(`LIVES ${lives}`, { size: UI_FONT_SIZE, font }),
       fgColor(),
-      k.pos(GAME_W - 24, 30),
-      k.anchor("topright"),
-      k.fixed(), k.z(10),
+      k.pos(18, GAME_H - 30),
+      k.anchor("left"),
+      k.fixed(),
+      k.z(10),
+    ]);
+    
+    k.add([
+      k.text(`LEVEL ${level}`, { size: UI_FONT_SIZE, font }),
+      fgColor(),
+      k.pos(GAME_W - 18, GAME_H - 30),
+      k.anchor("right"),
+      k.fixed(),
+      k.z(10),
     ]);
 
     // function renderLives() {
@@ -329,15 +352,6 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     //   }
     // }
     // renderLives();
-
-    // k.add([k.rect(GAME_W, 2), k.color(0, 255, 65), k.pos(0, GAME_H - 36), k.fixed(), k.z(5)]);
-    // k.add([
-    //   k.text(`LEVEL ${level}`, { size: 12, font }),
-    //   k.color(0, 255, 65),
-    //   k.pos(GAME_W / 2, GAME_H - 24),
-    //   k.anchor("top"),
-    //   k.fixed(), k.z(10),
-    // ]);
 
     const rowConfig = [
       { sprite: "enemyC", pts: 30 },
@@ -361,23 +375,24 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       }
     }
 
-    const NUM_SHIELDS = 5;
     const shieldPositions = Array.from({ length: NUM_SHIELDS }, (_, i) =>
       Math.round(GAME_W * (i + 1) / (NUM_SHIELDS + 1))
     );
     const shieldShape: [number, number][] = [
-      [0,0],[1,0],[2,0],[3,0],[4,0],
-      [0,1],[1,1],[2,1],[3,1],[4,1],
-      [0,2],[1,2],[2,2],[3,2],[4,2],
-      [0,3],[4,3],
-      [0,4],[4,4],
+      [1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],
+      [0,1],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],[8,1],
+      [0,2],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2],[7,2],[8,2],
+      [0,3],[1,3],[2,3],[3,3],[4,3],[5,3],[6,3],[7,3],[8,3],
+      [0,4],[1,4],[2,4],[3,4],[4,4],[5,4],[6,4],[7,4],[8,4],
+      [0,5],[1,5],[2,5],[5,5],[6,5],[7,5],[8,5],
+      [0,6],[1,6],[6,6],[7,6],[8,6],
     ];
     shieldPositions.forEach(sx => {
       shieldShape.forEach(([bx, by]) => {
         const s = k.add([
-          k.rect(8, 6),
-          k.color(50, 255, 3),
-          k.pos(sx - 20 + bx * 8, GAME_H * 0.95 - 95 + by * 7),
+          k.rect(16, 12),
+          k.color(...COLOR_SHIELD.match(/\d+/g)!.map(Number) as [number, number, number]),
+          k.pos(sx - 20 + bx * 16, GAME_H * 0.89 - 95 + by * 12),
           k.area(),
           k.z(4),
           "shield",
@@ -413,8 +428,8 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       if (k.get("bullet").length > 5) return;
       canShoot = false;
       k.add([
-        k.rect(3, 12),
-        k.color(0, 255, 65),
+        k.rect(4, 16),
+        k.color(...COLOR_PLAYER_BULLET.match(/\d+/g)!.map(Number) as [number, number, number]),
         k.pos(playerObj!.pos.x, playerObj!.pos.y - 20),
         k.anchor("center"),
         k.area(),
@@ -472,7 +487,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
         aliveEnemies.forEach(e => {
           e.frame = enemyFrame;
           const nextX = e.pos.x + (enemyDir * 12);
-          if (nextX < START_X || nextX > GAME_W - START_X - ENEMY_W) hitWall = true;
+          if (nextX < GUTTER || nextX > GAME_W - ENEMY_W - GUTTER) hitWall = true;
         });
 
         if (hitWall) {
@@ -493,7 +508,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
         const shooter = aliveEnemies[Math.floor(Math.random() * aliveEnemies.length)];
         k.add([
           k.rect(3, 10),
-          k.color(255, 64, 129),
+          k.color(...COLOR_ENEMY_BULLET.match(/\d+/g)!.map(Number) as [number, number, number]),
           k.pos(shooter.pos.x + 22, shooter.pos.y + 32),
           k.anchor("center"),
           k.area(),
@@ -511,7 +526,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
         const startX = dir === 1 ? -40 : GAME_W + 40;
         ufoObj = k.add([
           k.sprite("ufo"),
-          k.pos(startX, 100),
+          k.pos(startX, 80),
           k.anchor("center"),
           k.area(),
           k.move(dir === 1 ? k.RIGHT : k.LEFT, 60),
@@ -534,8 +549,9 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       enemy.alive = false;
       score += enemy.pts;
       hiScore = Math.max(hiScore, score);
-      scoreTxt.text = `SCORE  ${String(score).padStart(4, "0")}`;
-      hiTxt.text = `HI  ${String(hiScore).padStart(4, "0")}`;
+      localStorage.setItem(LS_HI_KEY, String(hiScore));
+      scoreTxt.text = `SCORE ${score}`;
+      hiTxt.text = `HIGH SCORE ${hiScore}`;
       playBeep(200, 0.12, "square", 0.15);
       explode(k.vec2(enemy.pos.x + 22, enemy.pos.y + 16));
       enemy.destroy();
@@ -547,6 +563,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       const pts = [50, 100, 150, 300][Math.floor(Math.random() * 4)];
       score += pts;
       hiScore = Math.max(hiScore, score);
+      localStorage.setItem(LS_HI_KEY, String(hiScore));
       scoreTxt.text = `SCORE  ${String(score).padStart(4, "0")}`;
       hiTxt.text = `HI  ${String(hiScore).padStart(4, "0")}`;
       playBeep(880, 0.2, "sawtooth", 0.15);
@@ -580,7 +597,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       eb.destroy();
       player.destroy();
       lives--;
-      livesTxt.text = `LIVES  ${lives}`;
+      livesTxt.text = `LIVES ${lives}`;
       playerDead = true;
       playerDeadTimer = 1.5;
       playBeep(100, 0.3, "sawtooth", 0.2);
@@ -622,13 +639,13 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       k.anchor("center"),
     ]);
     k.add([
-      k.text(`SCORE    ${String(score).padStart(5, "0")}`, { size: 18, font }),
+      k.text(`SCORE    ${String(score).padStart(5, "0")}`, { size: UI_FONT_SIZE, font }),
       k.color(255, 255, 255),
       k.pos(W / 2, H * 0.46),
       k.anchor("center"),
     ]);
     k.add([
-      k.text(`HI SCORE ${String(hiScore).padStart(5, "0")}`, { size: 18, font }),
+      k.text(`HI SCORE ${String(hiScore).padStart(5, "0")}`, { size: UI_FONT_SIZE, font }),
       k.color(255, 235, 59),
       k.pos(W / 2, H * 0.53),
       k.anchor("center"),

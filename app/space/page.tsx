@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useRef } from 'react'
+import { COLOR_PLAYER } from './game'
 
 export default function SpacePage() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -25,7 +26,10 @@ export default function SpacePage() {
           imageRendering: "pixelated",
         }}
       />
-      <div className="fixed inset-0 inset-ring-6 inset-ring-[rgb(0_255_65)] pointer-events-none" />
+      <div
+        className="fixed inset-0 inset-ring-10 inset-ring-(--color-player) pointer-events-none"
+        style={{ '--color-player': COLOR_PLAYER } as React.CSSProperties}
+      />
     </div>
   );
 }
