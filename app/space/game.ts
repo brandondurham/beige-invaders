@@ -1,4 +1,4 @@
-import kaplay from "kaplay";
+import kaplay, { type GameObj } from "kaplay";
 
 const UI_FONT_SIZE = 16;
 const NUM_SHIELDS = 4;
@@ -512,10 +512,10 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     const level = data.level || 1;
     let hiScore = data.hiScore || 0;
 
-    const enemies: ReturnType<typeof k.add>[] = [];
-    const shields: ReturnType<typeof k.add>[] = [];
-    let ufoObj: ReturnType<typeof k.add> | null = null;
-    let playerObj: ReturnType<typeof k.add> | null = null;
+    const enemies: GameObj[] = [];
+    const shields: GameObj[] = [];
+    let ufoObj: GameObj | null = null;
+    let playerObj: GameObj | null = null;
     let canShoot = true;
     let enemyDir = 1;
     let enemyMoveTimer = 0;
