@@ -9,7 +9,7 @@ export default function SpacePage() {
     const canvas = canvasRef.current
     if (!canvas) return
     let cleanup: (() => void) | undefined
-    Promise.all([import('./space/game'), document.fonts.ready]).then(([{ initGame }]) => {
+    Promise.all([import('./space/game'), document.fonts.load('16px Kongtext')]).then(([{ initGame }]) => {
       cleanup = initGame(canvas)
     })
     return () => cleanup?.()
