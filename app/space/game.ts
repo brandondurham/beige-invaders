@@ -9,7 +9,7 @@ export const COLOR_THREE = COLOR_ONE;
 export const COLOR_PLAYER = "rgb(3, 255, 7)";
 export const COLOR_SHIELD = COLOR_PLAYER;
 export const COLOR_PLAYER_BULLET = COLOR_PLAYER;
-export const COLOR_ENEMY_BULLET = "rgb(32, 0, 75)";
+export const COLOR_ENEMY_BULLET = "rgb(255, 217, 227)";
 export const COLOR_UFO = "rgb(254, 5, 254)";
 export const COLOR_EXPLOSION = COLOR_PLAYER;
 export const COLOR_UI_FONT = COLOR_PLAYER.match(/\d+/g)!.map(Number) as [number, number, number];
@@ -561,6 +561,8 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       k.z(10),
       k.area(),
     ]);
+    soundIconObj.onHover(() => { canvas.style.cursor = "pointer"; });
+    soundIconObj.onHoverEnd(() => { canvas.style.cursor = "default"; });
     soundIconObj.onClick(() => {
       soundEnabled = !soundEnabled;
       localStorage.setItem(LS_SOUND_KEY, soundEnabled ? "1" : "0");
