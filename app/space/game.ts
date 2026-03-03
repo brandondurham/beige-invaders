@@ -463,18 +463,20 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     ]);
 
     const scoreTable = [
-      { sprite: "ufo",    label: "= ?", color: COLOR_UFO },
-      { sprite: "enemyC", label: "= 30 POINTS", color: COLOR_THREE },
-      { sprite: "enemyB", label: "= 20 POINTS", color: COLOR_TWO },
-      { sprite: "enemyA", label: "= 10 POINTS", color: COLOR_ONE },
+      { sprite: "ufo",  label: "= ?",         color: COLOR_UFO   },
+      { sprite: "row1", label: "= 50 POINTS",  color: COLOR_THREE },
+      { sprite: "row2", label: "= 35 POINTS",  color: COLOR_TWO   },
+      { sprite: "row3", label: "= 25 POINTS",  color: COLOR_TWO   },
+      { sprite: "row4", label: "= 20 POINTS",  color: COLOR_ONE   },
+      { sprite: "row5", label: "= 10 POINTS",  color: COLOR_ONE   },
     ];
 
     scoreTable.forEach((row, i) => {
-      k.add([k.sprite(row.sprite), k.pos(W / 2 - 90, H * 0.59 + i * 44), k.scale(0.7), k.anchor("center")]);
+      k.add([k.sprite(row.sprite), k.pos(W / 2 - 90, H * 0.55 + i * 38), k.scale(0.7), k.anchor("center")]);
       k.add([
         k.text(row.label, { size: 14, font }),
         k.color(...row.color.match(/\d+/g)!.map(Number) as [number, number, number]),
-        k.pos(W / 2 - 55, H * 0.59 + i * 44),
+        k.pos(W / 2 - 55, H * 0.55 + i * 38),
         k.anchor("left"),
       ]);
     });
@@ -553,7 +555,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     // Sound toggle icon
     const soundIconObj = k.add([
       k.sprite("speaker", { frame: soundEnabled ? 0 : 1 }),
-      k.pos(GUTTER / 2, GUTTER / 1.6),
+      k.pos(GUTTER / 2, GUTTER / 1.68),
       k.anchor("left"),
       k.fixed(),
       k.z(10),
@@ -601,7 +603,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
         k.add([
           k.sprite("player"),
           k.scale(0.65),
-          k.pos(GUTTER / 2 + i * 50, GAME_H - (GUTTER * 0.9)),
+          k.pos(GUTTER / 2 + i * 54, GAME_H - (GUTTER * 0.9)),
           k.fixed(),
           k.z(10),
           "lifeIcon",
@@ -611,10 +613,10 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     renderLives();
 
     const rowConfig = [
-      { sprite: "row1", pts: 30 },
-      { sprite: "row2", pts: 20 },
-      { sprite: "row3", pts: 20 },
-      { sprite: "row4", pts: 10 },
+      { sprite: "row1", pts: 50 },
+      { sprite: "row2", pts: 35 },
+      { sprite: "row3", pts: 25 },
+      { sprite: "row4", pts: 20 },
       { sprite: "row5", pts: 10 },
     ];
 
