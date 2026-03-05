@@ -8,13 +8,27 @@ export const COLOR_ONE = "rgb(230, 225, 202)";
 export const COLOR_TWO = COLOR_ONE;
 export const COLOR_THREE = COLOR_ONE;
 // export const COLOR_PLAYER = "rgb(3, 255, 7)";
-export const COLOR_PLAYER = "rgb(14, 245, 200)";
+export const COLOR_PLAYER = "rgb(3, 255, 64)";
 export const COLOR_SHIELD = COLOR_PLAYER;
 export const COLOR_PLAYER_BULLET = COLOR_PLAYER;
 export const COLOR_ENEMY_BULLET = "rgb(255, 217, 227)";
 export const COLOR_UFO = "rgb(254, 5, 254)";
 export const COLOR_EXPLOSION = COLOR_PLAYER;
 export const COLOR_UI_FONT = COLOR_PLAYER.match(/\d+/g)!.map(Number) as [number, number, number];
+const NUM_COLORS_IN_SPLAT = 5;
+
+export const SPLAT_COLORS: [number, number, number][] = [
+  [255, 0, 30],
+  [255, 0, 185],
+  [255, 247, 0],
+  [12, 36, 255],
+  [0, 105, 12],
+  [255, 134, 243],
+  [0, 255, 165],
+  [0, 221, 255],
+  [111, 0, 159],
+];
+
 
 export function initGame(canvas: HTMLCanvasElement): () => void {
   const k = kaplay({
@@ -391,7 +405,8 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
   // k.loadSprite("bg", "/americana-a.jpeg");
   // k.loadSprite("bg", "/big.jpg");
   // k.loadSprite("bg", "/meeting.jpeg");
-  k.loadSprite("bg", "/building.jpg");
+  // k.loadSprite("bg", "/building.jpg");
+  k.loadSprite("bg", "/building-gray.jpg");
 
   // ─── AUDIO ───
 
@@ -687,6 +702,70 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     }
     spawnPlayer();
 
+    function paintSplat(pos: ReturnType<typeof k.vec2>) {
+      const P = 4;
+      const scale = 1 + Math.random() * 0.5; // 100%–150%
+      const INNER_R = Math.round(16 * scale);
+      const OUTER_R = Math.round(36 * scale);
+      const DROP_R  = Math.round(72 * scale); // outlier drops reach further
+      const pixels: { x: number; y: number; color: [number, number, number] }[] = [];
+
+      // Pick up to 5 colors for this splat
+      const palette = [...SPLAT_COLORS].sort(() => Math.random() - 0.5).slice(0, NUM_COLORS_IN_SPLAT);
+
+      // Jagged edge: vary the effective radius per angular slice
+      const SLICES = 24;
+      const edgeR = Array.from({ length: SLICES }, () => INNER_R + Math.random() * (OUTER_R - INNER_R));
+
+      const cx = Math.round(pos.x / P) * P;
+      const cy = Math.round(pos.y / P) * P;
+      const gridR = Math.ceil(OUTER_R / P);
+
+      // Patch palette: spatially grouped so adjacent pixels form color blobs
+      const patchPalette = Array.from({ length: 12 }, () => palette[Math.floor(Math.random() * palette.length)]);
+
+      for (let gy = -gridR; gy <= gridR; gy++) {
+        for (let gx = -gridR; gx <= gridR; gx++) {
+          const dx = gx * P, dy = gy * P;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist > OUTER_R) continue;
+
+          const angle = Math.atan2(dy, dx);
+          const slice = Math.floor(((angle + Math.PI) / (Math.PI * 2)) * SLICES) % SLICES;
+          const localR = edgeR[slice];
+
+          const fillChance = dist <= INNER_R ? 0.96 : 0.96 - 0.88 * ((dist - INNER_R) / (localR - INNER_R + 1));
+          if (Math.random() > fillChance) continue;
+
+          const patchX = Math.floor((gx + gridR) / 3);
+          const patchY = Math.floor((gy + gridR) / 3);
+          const color = patchPalette[(patchX * 7 + patchY * 13) % patchPalette.length];
+          pixels.push({ x: cx + dx, y: cy + dy, color });
+        }
+      }
+
+      // Outlier drops scattered further out
+      const NUM_DROPS = 8 + Math.floor(Math.random() * 6);
+      for (let i = 0; i < NUM_DROPS; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const dist = OUTER_R + Math.random() * (DROP_R - OUTER_R);
+        const ddx = Math.round((Math.cos(angle) * dist) / P) * P;
+        const ddy = Math.round((Math.sin(angle) * dist) / P) * P;
+        const color = palette[Math.floor(Math.random() * palette.length)];
+        // Small cluster of 1–4 pixels per drop
+        const dropSize = 1 + Math.floor(Math.random() * 4);
+        for (let s = 0; s < dropSize; s++) {
+          pixels.push({ x: cx + ddx + (s % 2) * P, y: cy + ddy + Math.floor(s / 2) * P, color });
+        }
+      }
+
+      k.add([
+        k.pos(0, 0),
+        k.z(-1),
+        { draw() { for (const px of pixels) k.drawRect({ pos: k.vec2(px.x, px.y), width: P, height: P, color: k.rgb(px.color[0], px.color[1], px.color[2]) }); } },
+      ]);
+    }
+
     function explode(pos: ReturnType<typeof k.vec2>) {
       const exp = k.add([
         k.sprite("explosion"),
@@ -748,6 +827,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       alienCount = aliveEnemies.length;
 
       if (alienCount === 0) {
+        window.dispatchEvent(new CustomEvent('level-complete'));
         k.go("game", { score, lives, level: level + 1, hiScore: Math.max(hiScore, score) });
         return;
       }
@@ -833,7 +913,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       scoreTxt.text = `SCORE ${score}`;
       hiTxt.text = `HI SCORE ${hiScore}`;
       playBeep(200, 0.12, "square", 0.15);
-      explode(k.vec2(enemy.pos.x + 22, enemy.pos.y + 16));
+      paintSplat(k.vec2(enemy.pos.x + 18, enemy.pos.y + 20));
       enemy.destroy();
       canShoot = true;
     });
@@ -977,7 +1057,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     k.onKeyPress("t", () => k.go("title"));
   });
 
-  const INITIAL_SCENE: "title" | "game" | "gameover" = "gameover";
+  const INITIAL_SCENE: "title" | "game" | "gameover" = "title";
 
   k.go(INITIAL_SCENE);
 
