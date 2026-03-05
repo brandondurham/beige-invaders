@@ -3,10 +3,12 @@ import kaplay, { type GameObj } from "kaplay";
 const UI_FONT_SIZE = 16;
 const NUM_SHIELDS = 4;
 const COLOR_BACKGROUND = [241, 235, 223] as [number, number, number];
-export const COLOR_ONE = "rgb(222, 206, 177)";
+// export const COLOR_ONE = "rgb(222, 206, 177)";
+export const COLOR_ONE = "rgb(230, 225, 202)";
 export const COLOR_TWO = COLOR_ONE;
 export const COLOR_THREE = COLOR_ONE;
-export const COLOR_PLAYER = "rgb(3, 255, 7)";
+// export const COLOR_PLAYER = "rgb(3, 255, 7)";
+export const COLOR_PLAYER = "rgb(14, 245, 200)";
 export const COLOR_SHIELD = COLOR_PLAYER;
 export const COLOR_PLAYER_BULLET = COLOR_PLAYER;
 export const COLOR_ENEMY_BULLET = "rgb(255, 217, 227)";
@@ -385,7 +387,11 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
   ].map(v => v ? COLOR_PLAYER : null);
   k.loadSprite("speaker", makeSpritesheetDataURL([speakerOnPixels, speakerOffPixels], 15, 10, 2), { sliceX: 2 });
   // k.loadSprite("bg", "/retro.jpg");
-  k.loadSprite("bg", "/retro-2.jpg");
+  // k.loadSprite("bg", "/retro-2.jpg");
+  // k.loadSprite("bg", "/americana-a.jpeg");
+  // k.loadSprite("bg", "/big.jpg");
+  // k.loadSprite("bg", "/meeting.jpeg");
+  k.loadSprite("bg", "/building.jpg");
 
   // ─── AUDIO ───
 
@@ -633,7 +639,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
                 frame: this.frame ?? 0,
                 pos: k.vec2(-2, 2),
                 color: k.rgb(0, 0, 0),
-                opacity: 0.25,
+                opacity: 0.6,
               });
             },
           },
@@ -971,7 +977,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     k.onKeyPress("t", () => k.go("title"));
   });
 
-  const INITIAL_SCENE: "title" | "game" | "gameover" = "title";
+  const INITIAL_SCENE: "title" | "game" | "gameover" = "gameover";
 
   k.go(INITIAL_SCENE);
 
