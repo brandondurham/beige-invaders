@@ -387,7 +387,12 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
   k.loadSound("beep2", "/game/audio/beep-2.m4a");
   k.loadSound("beep3", "/game/audio/beep-3.m4a");
   k.loadSound("beep4", "/game/audio/beep-4.m4a");
-  k.loadSound("ufo", "/game/audio/custom/ufo-1.mp3");
+  let ufoAudioBuf: AudioBuffer | null = null;
+  fetch("/game/audio/custom/ufo-1.mp3")
+    .then(r => { if (!r.ok) throw new Error(`ufo-1.mp3 fetch failed: ${r.status}`); return r.arrayBuffer(); })
+    .then(buf => audioCtx.decodeAudioData(buf))
+    .then(buffer => { ufoAudioBuf = buffer; })
+    .catch(e => console.error("[ufo]", e));
 
   const bulletPixels = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1].map((v) =>
     v ? `rgb(${COLOR_PLAYER_BULLET.join(',')})` : null,
@@ -579,8 +584,17 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     let ufoSound: { stop: () => void } | null = null;
     const startUfoSound = () => {
       ufoSound?.stop();
-      const snd = k.play("ufo", { loop: true, volume: 0.4 });
-      ufoSound = { stop: () => snd.stop() };
+      if (!ufoAudioBuf) return;
+      if (audioCtx.state === "suspended") audioCtx.resume();
+      const src = audioCtx.createBufferSource();
+      src.buffer = ufoAudioBuf;
+      src.loop = true;
+      const gain = audioCtx.createGain();
+      gain.gain.value = 0.4;
+      src.connect(gain);
+      gain.connect(audioCtx.destination);
+      src.start();
+      ufoSound = { stop: () => { src.stop(); src.disconnect(); } };
     };
     let playerObj: GameObj | null = null;
     let canShoot = true;
@@ -923,6 +937,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       alienCount = aliveEnemies.length;
 
       if (alienCount === 0) {
+        ufoSound?.stop(); ufoSound = null;
         window.dispatchEvent(new CustomEvent('level-complete'));
         k.go("game", { score, lives, level: level + 1, hiScore: Math.max(hiScore, score) });
         return;
