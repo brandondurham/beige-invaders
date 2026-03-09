@@ -871,6 +871,64 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       ]);
     }
 
+    function paintSplatDown(pos: ReturnType<typeof k.vec2>) {
+      const P = 4;
+      const scale = (0.6 + Math.random() * 1.2) * 1.2;
+      const INNER_R = Math.round(16 * scale);
+      const OUTER_R = Math.round(36 * scale);
+      const DROP_R  = Math.round(260 * scale);
+      const pixels: { x: number; y: number; color: [number, number, number] }[] = [];
+
+      const palette = [...SPLAT_COLORS].sort(() => Math.random() - 0.5).slice(0, NUM_COLORS_IN_SPLAT);
+
+      // Slices 12–23 are the downward half (angle 0→π, i.e. positive dy in screen space)
+      const SLICES = 24;
+      const edgeR = Array.from({ length: SLICES }, (_, i) => {
+        const t = INNER_R + Math.random() * (OUTER_R - INNER_R);
+        return i >= 12 ? t * (1.8 + Math.random() * 0.7) : t * (0.3 + Math.random() * 0.25);
+      });
+
+      const cx = Math.round(pos.x / P) * P;
+      const cy = Math.round(pos.y / P) * P;
+      const gridR = Math.ceil(OUTER_R * 2 / P);
+      const patchPalette = Array.from({ length: 12 }, () => palette[Math.floor(Math.random() * palette.length)]);
+
+      for (let gy = -gridR; gy <= gridR; gy++) {
+        for (let gx = -gridR; gx <= gridR; gx++) {
+          const dx = gx * P, dy = gy * P;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          const angle = Math.atan2(dy, dx);
+          const slice = Math.floor(((angle + Math.PI) / (Math.PI * 2)) * SLICES) % SLICES;
+          const localR = edgeR[slice];
+          if (dist > localR) continue;
+          const fillChance = dist <= INNER_R ? 0.96 : 0.96 - 0.88 * ((dist - INNER_R) / (localR - INNER_R + 1));
+          if (Math.random() > fillChance) continue;
+          const patchX = Math.floor((gx + gridR) / 3);
+          const patchY = Math.floor((gy + gridR) / 3);
+          pixels.push({ x: cx + dx, y: cy + dy, color: patchPalette[(patchX * 7 + patchY * 13) % patchPalette.length] });
+        }
+      }
+
+      // Drip drops biased steeply downward
+      const NUM_DROPS = 14 + Math.floor(Math.random() * 8);
+      for (let i = 0; i < NUM_DROPS; i++) {
+        const angle = Math.PI / 2 + (Math.random() - 0.5) * Math.PI * 0.35;
+        const dist = OUTER_R + Math.random() * (DROP_R - OUTER_R);
+        const ddx = Math.round((Math.cos(angle) * dist) / P) * P;
+        const ddy = Math.round((Math.sin(angle) * dist) / P) * P;
+        const color = palette[Math.floor(Math.random() * palette.length)];
+        const dropSize = 1 + Math.floor(Math.random() * 5);
+        for (let s = 0; s < dropSize; s++)
+          pixels.push({ x: cx + ddx + (s % 2) * P, y: cy + ddy + Math.floor(s / 2) * P, color });
+      }
+
+      k.add([
+        k.pos(0, 0),
+        k.z(-1),
+        { draw() { for (const px of pixels) k.drawRect({ pos: k.vec2(px.x, px.y), width: P, height: P, color: k.rgb(px.color[0], px.color[1], px.color[2]) }); } },
+      ]);
+    }
+
     function explode(pos: ReturnType<typeof k.vec2>) {
       const exp = k.add([
         k.sprite("explosion"),
@@ -1042,7 +1100,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       scoreTxt.text = scoreShadow.text = `SCORE ${String(score).padStart(4, "0")}`;
       hiTxt.text = hiShadow.text = `HI ${String(hiScore).padStart(4, "0")}`;
       if (soundEnabled) k.play("splat", { volume: 0.5 });
-      explode(k.vec2(ufo.pos.x, ufo.pos.y));
+      paintSplatDown(k.vec2(ufo.pos.x, ufo.pos.y));
       const floatTxt = k.add([
         k.text(`+${pts}`, { size: 14, font }),
         k.color(...COLOR_UI_FONT),
