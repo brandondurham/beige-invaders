@@ -24,10 +24,10 @@ export default function SpacePage() {
     let frame: number
     let seed = 0
     const tick = () => {
-      seed = (seed + 1) % 200
-      grainRef.current?.setAttribute('seed', String(seed))
+      if (seed % 3 === 0) grainRef.current?.setAttribute('seed', String(seed / 3 | 0))
+      seed = (seed + 1) % 600
       frame = requestAnimationFrame(tick)
-    }
+    }    
     frame = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(frame)
   }, [])
@@ -52,19 +52,6 @@ export default function SpacePage() {
 
   return (
     <div className="w-screen h-screen overflow-hidden bg-black">
-      <svg style={{ position: 'absolute', width: 0, height: 0 }}>
-        <defs>
-          <filter id="grain" x="0%" y="0%" width="100%" height="100%" colorInterpolationFilters="sRGB">
-            <feTurbulence ref={grainRef} type="fractalNoise" baseFrequency="0.75" numOctaves="3" stitchTiles="stitch" />
-            <feColorMatrix type="saturate" values="0" />
-            <feComponentTransfer>
-              <feFuncR type="linear" slope="6" intercept="-1" />
-              <feFuncG type="linear" slope="6" intercept="-1" />
-              <feFuncB type="linear" slope="6" intercept="-1" />
-            </feComponentTransfer>
-          </filter>
-        </defs>
-      </svg>
       <canvas
         ref={canvasRef}
         style={{
@@ -76,8 +63,21 @@ export default function SpacePage() {
       />
       <div
         className="fixed inset-0 pointer-events-none"
-        style={{ filter: 'url(#grain)', opacity: 0.5, mixBlendMode: 'overlay', background: 'white' }}
+        style={{ filter: 'url(#grain)', opacity: 0.25, mixBlendMode: 'overlay', background: 'white' }}
       />
+      <svg style={{ position: 'absolute', width: 0, height: 0 }}>
+        <defs>
+          <filter id="grain" x="0%" y="0%" width="100%" height="100%" colorInterpolationFilters="sRGB">
+            <feTurbulence ref={grainRef} type="fractalNoise" baseFrequency="0.45" numOctaves="3" stitchTiles="stitch" />
+            <feColorMatrix type="saturate" values="0" />
+            <feComponentTransfer>
+              <feFuncR type="linear" slope="70" intercept="-2.5" />
+              <feFuncG type="linear" slope="70" intercept="-2.5" />
+              <feFuncB type="linear" slope="70" intercept="-2.5" />
+            </feComponentTransfer>
+          </filter>
+        </defs>
+      </svg>
       <div
         className="fixed inset-0 inset-ring-10 inset-ring-(--color-player) pointer-events-none"
         style={{ '--color-player': `rgb(${ringColor.join(',')})` } as React.CSSProperties}

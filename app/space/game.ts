@@ -387,18 +387,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
   k.loadSound("beep2", "/game/audio/beep-2.m4a");
   k.loadSound("beep3", "/game/audio/beep-3.m4a");
   k.loadSound("beep4", "/game/audio/beep-4.m4a");
-  let hoverFwd: AudioBuffer | null = null;
-  let hoverRev: AudioBuffer | null = null;
-  fetch("/game/audio/hovering.mp3")
-    .then(r => { if (!r.ok) throw new Error(`hover.mp3 fetch failed: ${r.status} ${r.url}`); return r.arrayBuffer(); })
-    .then(buf => audioCtx.decodeAudioData(buf))
-    .then(buffer => {
-      hoverFwd = buffer;
-      hoverRev = audioCtx.createBuffer(buffer.numberOfChannels, buffer.length, buffer.sampleRate);
-      for (let i = 0; i < buffer.numberOfChannels; i++)
-        hoverRev.copyToChannel(Float32Array.from(buffer.getChannelData(i)).reverse(), i);
-    })
-    .catch(e => console.error("[hover]", e));
+  k.loadSound("ufo", "/game/audio/custom/ufo-1.mp3");
 
   const bulletPixels = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1].map((v) =>
     v ? `rgb(${COLOR_PLAYER_BULLET.join(',')})` : null,
@@ -590,23 +579,8 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     let ufoSound: { stop: () => void } | null = null;
     const startUfoSound = () => {
       ufoSound?.stop();
-      let stopped = false;
-      let currentSrc: AudioBufferSourceNode | null = null;
-      const play = (buf: AudioBuffer) => {
-        if (stopped) return;
-        if (audioCtx.state === "suspended") audioCtx.resume();
-        const src = audioCtx.createBufferSource();
-        src.buffer = buf;
-        const gain = audioCtx.createGain();
-        gain.gain.value = 0.4;
-        src.connect(gain);
-        gain.connect(audioCtx.destination);
-        src.onended = () => play(buf === hoverFwd! ? hoverRev! : hoverFwd!);
-        src.start();
-        currentSrc = src;
-      };
-      if (hoverFwd && hoverRev) play(hoverFwd);
-      ufoSound = { stop: () => { stopped = true; currentSrc?.stop(); currentSrc = null; } };
+      const snd = k.play("ufo", { loop: true, volume: 0.4 });
+      ufoSound = { stop: () => snd.stop() };
     };
     let playerObj: GameObj | null = null;
     let canShoot = true;
@@ -1070,6 +1044,8 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     });
 
     k.onCollide("bullet", "shield", (bullet: any, shield: any) => {
+      if (bullet._hitShield) return;
+      bullet._hitShield = true;
       bullet.destroy();
       shield.destroy();
       canShoot = true;
