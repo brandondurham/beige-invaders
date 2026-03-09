@@ -875,8 +875,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       k.add([
         k.rect(4, 16),
         k.color(...COLOR_PLAYER_BULLET),
-        k.pos(playerObj!.pos.x, playerObj!.pos.y - 20),
-        k.anchor("center"),
+        k.pos(playerObj!.pos.x - 2, playerObj!.pos.y - 36),
         k.area(),
         k.move(k.UP, 900),
         k.z(6),
@@ -1044,11 +1043,18 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     });
 
     k.onCollide("bullet", "shield", (bullet: any, shield: any) => {
-      if (bullet._hitShield) return;
-      bullet._hitShield = true;
-      bullet.destroy();
-      shield.destroy();
-      canShoot = true;
+      if (!bullet._shieldHit || shield.pos.y > bullet._shieldHit.pos.y) {
+        bullet._shieldHit = shield;
+      }
+    });
+    k.on("update", "bullet", (b: GameObj) => {
+      const bullet = b as GameObj & { _shieldHit?: GameObj };
+      if (bullet._shieldHit) {
+        bullet._shieldHit.destroy();
+        bullet._shieldHit = undefined;
+        bullet.destroy();
+        canShoot = true;
+      }
     });
 
     k.onCollide("enemyBullet", "shield", (eb: any, shield: any) => {
