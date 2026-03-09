@@ -768,7 +768,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     shieldPositions.forEach(sx => {
       const remaining = new Set(shieldShape.map(([bx, by]) => `${bx},${by}`));
       k.add([
-        k.pos(sx - 112, GAME_H * 0.89 - 95),
+        k.pos(sx - 112, GAME_H * 0.88 - 95),
         k.z(3),
         { draw() { for (const key of remaining) { const [bx, by] = key.split(",").map(Number); k.drawRect({ pos: k.vec2(-2 + bx * 16, 2 + by * 12), width: 16, height: 12, color: k.rgb(...COLOR_SHADOW) }); } } },
       ]);
@@ -776,7 +776,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
         const s = k.add([
           k.rect(16, 12),
           k.color(...COLOR_SHIELD),
-          k.pos(sx - 112 + bx * 16, GAME_H * 0.89 - 95 + by * 12),
+          k.pos(sx - 112 + bx * 16, GAME_H * 0.88 - 95 + by * 12),
           k.area(),
           k.z(4),
           "shield",
@@ -791,7 +791,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
         { draw() { k.drawSprite({ sprite: "player", anchor: "center", pos: k.vec2(-2, 2), color: k.rgb(...COLOR_SHADOW) }); } },
         k.color(...COLOR_PLAYER),
         k.sprite("player"),
-        k.pos(GAME_W / 2, GAME_H - GUTTER - 26),
+        k.pos(GAME_W / 2, GAME_H - GUTTER - 38),
         k.anchor("center"),
         k.area(),
         "player",
@@ -1097,7 +1097,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
 
   k.scene("gameover", (data: Record<string, number> = {}) => {
     const score = data.score || 0;
-    const hiScore = Math.max(data.hiScore || 0, persistedHiScore);
+    const hiScore = data.hiScore || 0;
     const W = k.width();
     const H = k.height();
 
@@ -1176,7 +1176,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     k.onKeyPress("t", () => k.go("title"));
   });
 
-  const INITIAL_SCENE: "title" | "game" | "gameover" = "title";
+  const INITIAL_SCENE: "title" | "game" | "gameover" = "gameover";
 
   k.go(INITIAL_SCENE);
 
