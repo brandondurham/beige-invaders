@@ -801,7 +801,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
 
     function paintSplat(pos: ReturnType<typeof k.vec2>) {
       const P = 4;
-      const scale = 0.6 + Math.random() * 1; // 100%–150%
+      const scale = 0.4 + Math.random() * 1.5;
       const INNER_R = Math.round(16 * scale);
       const OUTER_R = Math.round(36 * scale);
       const DROP_R  = Math.round(72 * scale); // outlier drops reach further
@@ -1176,7 +1176,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     k.onKeyPress("t", () => k.go("title"));
   });
 
-  const INITIAL_SCENE: "title" | "game" | "gameover" = "gameover";
+  const INITIAL_SCENE: "title" | "game" | "gameover" = "title";
 
   k.go(INITIAL_SCENE);
 
