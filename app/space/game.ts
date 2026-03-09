@@ -15,6 +15,13 @@ import {
   COLOR_SHIELD,
   COLOR_UFO,
   COLOR_UI_FONT,
+  DIALOG_QUESTION,
+  DIALOG_BG,
+  DIALOG_FG,
+  DIALOG_BTN_YES_BG,
+  DIALOG_BTN_YES_FG,
+  DIALOG_BTN_NO_BG,
+  DIALOG_BTN_NO_FG,
   NUM_COLORS_IN_SPLAT,
   NUM_SHIELDS,
   SPLAT_COLORS,
@@ -559,7 +566,36 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       blink.opacity = Math.sin(blinkTimer * 4) > 0 ? 1 : 0;
     });
 
-    k.onKeyPress("space", () => k.go("game", { hiScore: persistedHiScore }));
+    k.onKeyPress("space", () => {
+      const W = k.width(), H = k.height();
+      const DW = 480, DH = 160;
+      const dx = W / 2 - DW / 2, dy = H / 2 - DH / 2;
+      const BTN_W = 140, BTN_H = 40;
+
+      const overlay = k.add([k.rect(W, H), k.color(...DIALOG_BG), k.opacity(0.7), k.pos(0, 0), k.fixed(), k.z(50)]);
+      const box = k.add([k.rect(DW, DH), k.color(...DIALOG_BG), k.outline(2, k.rgb(...DIALOG_FG)), k.pos(dx, dy), k.fixed(), k.z(51)]);
+      k.add([k.text(DIALOG_QUESTION, { size: 14, font }), k.color(...DIALOG_FG), k.pos(W / 2, dy + 44), k.anchor("center"), k.fixed(), k.z(52)]);
+
+      const startGame = (withSound: boolean) => {
+        soundEnabled = withSound;
+        localStorage.setItem(LS_SOUND_KEY, withSound ? "1" : "0");
+        [overlay, box].forEach(o => o.destroy());
+        k.get("dialogBtn").forEach((o: GameObj) => o.destroy());
+        k.get("dialogLabel").forEach((o: GameObj) => o.destroy());
+        k.go("game", { hiScore: persistedHiScore });
+      };
+
+      const makeBtn = (label: string, bg: [number,number,number], fg: [number,number,number], bx: number, withSound: boolean) => {
+        const btn = k.add([k.rect(BTN_W, BTN_H), k.color(...bg), k.pos(bx, dy + 96), k.fixed(), k.z(52), k.area(), "dialogBtn"]);
+        k.add([k.text(label, { size: 14, font }), k.color(...fg), k.pos(bx + BTN_W / 2, dy + 96 + BTN_H / 2), k.anchor("center"), k.fixed(), k.z(53), "dialogLabel"]);
+        btn.onHover(() => { canvas.style.cursor = "pointer"; });
+        btn.onHoverEnd(() => { canvas.style.cursor = "default"; });
+        btn.onClick(() => startGame(withSound));
+      };
+
+      makeBtn("NO",  DIALOG_BTN_NO_BG,  DIALOG_BTN_NO_FG,  dx + 60,          false);
+      makeBtn("YES", DIALOG_BTN_YES_BG, DIALOG_BTN_YES_FG, dx + DW - 60 - BTN_W, true);
+    });
   });
 
   k.scene("game", (data: Record<string, number> = {}) => {
@@ -642,7 +678,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     // Sound toggle icon
     const soundIconObj = k.add([
       { draw() { k.drawSprite({ sprite: "speaker", frame: soundIconObj.frame, anchor: "left", pos: k.vec2(-2, 2), color: k.rgb(...COLOR_SHADOW) }); } },
-      k.color(...COLOR_PLAYER),
+      k.color(...COLOR_UI_FONT),
       k.sprite("speaker", { frame: soundEnabled ? 0 : 1 }),
       k.pos(GUTTER / 2, GUTTER / 1.68),
       k.anchor("left"),
