@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
-import { COLOR_FRAME } from './space/consts'
+import { COLOR_FRAME, SPLAT_COLORS } from './space/consts'
 
 const FRAME_ANIMATION_DURATION = 100;
 const FRAME_ANIMATION_REPEATS = 3;
@@ -38,7 +38,7 @@ export default function SpacePage() {
       let i = 0;
       const interval = setInterval(() => {
         const [r, g, b] = sequence[i];
-        setRingColor(`rgb(${r}, ${g}, ${b})`);
+        setRingColor([r, g, b]);
         i++;
         if (i >= sequence.length) {
           clearInterval(interval);
@@ -80,7 +80,7 @@ export default function SpacePage() {
       />
       <div
         className="fixed inset-0 inset-ring-10 inset-ring-(--color-player) pointer-events-none"
-        style={{ '--color-player': ringColor } as React.CSSProperties}
+        style={{ '--color-player': `rgb(${ringColor.join(',')})` } as React.CSSProperties}
       />
     </div>
   );

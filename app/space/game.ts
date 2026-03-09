@@ -361,6 +361,24 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
   ].map((v) => (v ? `rgb(${COLOR_UFO.join(',')})` : null));
   k.loadSprite("ufo", makeSpriteDataURL(ufoPixels, 16, 7, 4));
+  k.loadSound("pew", "/game/audio/pew-pew.m4a");
+  k.loadSound("boom", "/game/audio/boom.m4a");
+  k.loadSound("beep1", "/game/audio/beep-1.m4a");
+  k.loadSound("beep2", "/game/audio/beep-2.m4a");
+  k.loadSound("beep3", "/game/audio/beep-3.m4a");
+  k.loadSound("beep4", "/game/audio/beep-4.m4a");
+  let hoverFwd: AudioBuffer | null = null;
+  let hoverRev: AudioBuffer | null = null;
+  fetch("/game/audio/hovering.mp3")
+    .then(r => { if (!r.ok) throw new Error(`hover.mp3 fetch failed: ${r.status} ${r.url}`); return r.arrayBuffer(); })
+    .then(buf => audioCtx.decodeAudioData(buf))
+    .then(buffer => {
+      hoverFwd = buffer;
+      hoverRev = audioCtx.createBuffer(buffer.numberOfChannels, buffer.length, buffer.sampleRate);
+      for (let i = 0; i < buffer.numberOfChannels; i++)
+        hoverRev.copyToChannel(Float32Array.from(buffer.getChannelData(i)).reverse(), i);
+    })
+    .catch(e => console.error("[hover]", e));
 
   const bulletPixels = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1].map((v) =>
     v ? `rgb(${COLOR_PLAYER_BULLET.join(',')})` : null,
@@ -471,15 +489,24 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
 
     k.add([
       k.text("BEIGE", { size: 52, font }),
+      k.color(...COLOR_SHADOW),
+      k.pos(W / 2 - 2, H * 0.27 + 2),
+      k.anchor("center"),
+    ]);
+    k.add([
+      k.text("BEIGE", { size: 52, font }),
       k.color(...COLOR_H1),
       k.pos(W / 2, H * 0.27),
       k.anchor("center"),
     ]);
     k.add([
-      k.text("INVADERS", {
-        size: 52,
-        font,
-      }),
+      k.text("INVADERS", { size: 52, font }),
+      k.color(...COLOR_SHADOW),
+      k.pos(W / 2 + 2, H * 0.36 + 2),
+      k.anchor("center"),
+    ]);
+    k.add([
+      k.text("INVADERS", { size: 52, font }),
       k.color(...COLOR_H1),
       k.pos(W / 2, H * 0.36),
       k.anchor("center"),
@@ -495,11 +522,11 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     ];
 
     scoreTable.forEach((row, i) => {
-      k.add([k.sprite(row.sprite), k.pos(W / 2 - 90, H * 0.55 + i * 38), k.scale(0.7), k.anchor("center")]);
+      k.add([k.sprite(row.sprite), k.pos(W / 2 - 90, H * 0.5 + i * 38), k.scale(0.7), k.anchor("center")]);
       k.add([
         k.text(row.label, { size: 14, font }),
         k.color(...COLOR_ENEMY),
-        k.pos(W / 2 - 55, H * 0.55 + i * 38),
+        k.pos(W / 2 - 55, H * 0.5 + i * 38),
         k.anchor("left"),
       ]);
     });
@@ -540,6 +567,27 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     const enemies: GameObj[] = [];
     const shields: GameObj[] = [];
     let ufoObj: GameObj | null = null;
+    let ufoSound: { stop: () => void } | null = null;
+    const startUfoSound = () => {
+      ufoSound?.stop();
+      let stopped = false;
+      let currentSrc: AudioBufferSourceNode | null = null;
+      const play = (buf: AudioBuffer) => {
+        if (stopped) return;
+        if (audioCtx.state === "suspended") audioCtx.resume();
+        const src = audioCtx.createBufferSource();
+        src.buffer = buf;
+        const gain = audioCtx.createGain();
+        gain.gain.value = 0.4;
+        src.connect(gain);
+        gain.connect(audioCtx.destination);
+        src.onended = () => play(buf === hoverFwd! ? hoverRev! : hoverFwd!);
+        src.start();
+        currentSrc = src;
+      };
+      if (hoverFwd && hoverRev) play(hoverFwd);
+      ufoSound = { stop: () => { stopped = true; currentSrc?.stop(); currentSrc = null; } };
+    };
     let playerObj: GameObj | null = null;
     let canShoot = true;
     let enemyDir = 1;
@@ -552,7 +600,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     let playerDead = false;
     let playerDeadTimer = 0;
     let stepSound = 0;
-    const stepFreqs = [160, 130, 100, 80];
+
     let alienCount = ENEMY_COLS * ENEMY_ROWS;
     const aliensBulletChance = 0.003 + (level - 1) * 0.001;
 
@@ -601,6 +649,8 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       localStorage.setItem(LS_SOUND_KEY, soundEnabled ? "1" : "0");
       const snd = soundIconObj as unknown as { frame: number; opacity: number };
       snd.frame = soundEnabled ? 0 : 1;
+      if (!soundEnabled) { ufoSound?.stop(); ufoSound = null; }
+      else if (ufoObj) startUfoSound();
     });
 
     const scoreShadow = k.add([
@@ -838,7 +888,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
         k.z(6),
         "bullet",
       ]);
-      playBeep(600, 0.06, "square", 0.1);
+      if (soundEnabled) k.play("pew", { volume: 0.08 });
       if (playerObj) {
         playerObj.color = k.rgb(...COLOR_PLAYER_ACTIVE);
         k.wait(0.08, () => { if (playerObj) playerObj.color = k.rgb(...COLOR_PLAYER); });
@@ -864,6 +914,8 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
         playerDeadTimer -= k.dt();
         if (playerDeadTimer <= 0) {
           if (lives <= 0) {
+            localStorage.setItem(LS_HI_KEY, String(Math.max(hiScore, score)));
+            ufoSound?.stop(); ufoSound = null;
             k.go("gameover", { score, hiScore: Math.max(hiScore, score) });
           } else {
             playerDead = false;
@@ -888,7 +940,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       if (enemyMoveTimer >= speedFactor) {
         enemyMoveTimer = 0;
         enemyFrame = (enemyFrame + 1) % 2;
-        playBeep(stepFreqs[stepSound % 4], 0.04, "square", 0.08);
+        if (soundEnabled) k.play(`beep${(stepSound % 4) + 1}`, { volume: 0.08 });
         stepSound++;
 
         type EnemyE = { frame: number; pos: { x: number; y: number }; row: number };
@@ -907,6 +959,8 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
           te.forEach(e => {
             if (e.pos.y > GAME_H - 90) {
               gameOver = true;
+              localStorage.setItem(LS_HI_KEY, String(Math.max(hiScore, score)));
+              ufoSound?.stop(); ufoSound = null;
               k.go("gameover", { score, hiScore: Math.max(hiScore, score) });
             }
           });
@@ -945,12 +999,13 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
           k.z(6),
           "ufo",
         ]);
-        playBeep(880, 0.1, "sawtooth", 0.05);
+        if (soundEnabled) startUfoSound();
       }
       if (ufoObj) {
         if (ufoObj.pos.x < -60 || ufoObj.pos.x > GAME_W + 60) {
           ufoObj.destroy();
           ufoObj = null;
+          ufoSound?.stop(); ufoSound = null;
         }
       }
     });
@@ -964,7 +1019,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       localStorage.setItem(LS_HI_KEY, String(hiScore));
       scoreTxt.text = scoreShadow.text = `SCORE ${score}`;
       hiTxt.text = hiShadow.text = `HI SCORE ${hiScore}`;
-      playBeep(200, 0.12, "square", 0.15);
+      if (soundEnabled) k.play("boom", { volume: 0.22 });
       paintSplat(k.vec2(enemy.pos.x + 18, enemy.pos.y + 20));
       enemy.destroy();
       canShoot = true;
@@ -990,6 +1045,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       k.wait(1, () => floatTxt.destroy());
       ufo.destroy();
       ufoObj = null;
+      ufoSound?.stop(); ufoSound = null;
       canShoot = true;
     });
 
@@ -1032,6 +1088,8 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       playerDeadTimer = 1.5;
       player.destroy();
       k.wait(1.5, () => {
+        localStorage.setItem(LS_HI_KEY, String(Math.max(hiScore, score)));
+        ufoSound?.stop(); ufoSound = null;
         k.go("gameover", { score, hiScore: Math.max(hiScore, score) });
       });
     });
@@ -1039,7 +1097,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
 
   k.scene("gameover", (data: Record<string, number> = {}) => {
     const score = data.score || 0;
-    const hiScore = data.hiScore || 0;
+    const hiScore = Math.max(data.hiScore || 0, persistedHiScore);
     const W = k.width();
     const H = k.height();
 
@@ -1058,15 +1116,24 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
 
     k.add([
       k.text("GAME", { size: 52, font }),
+      k.color(...COLOR_SHADOW),
+      k.pos(W / 2 - 2, H * 0.27 + 2),
+      k.anchor("center"),
+    ]);
+    k.add([
+      k.text("GAME", { size: 52, font }),
       k.color(255, 0, 0),
       k.pos(W / 2, H * 0.27),
       k.anchor("center"),
     ]);
     k.add([
-      k.text("OVER", {
-        size: 52,
-        font,
-      }),
+      k.text("OVER", { size: 52, font }),
+      k.color(...COLOR_SHADOW),
+      k.pos(W / 2 - 2, H * 0.36 + 2),
+      k.anchor("center"),
+    ]);
+    k.add([
+      k.text("OVER", { size: 52, font }),
       k.color(255, 0, 0),
       k.pos(W / 2, H * 0.36),
       k.anchor("center"),
@@ -1081,7 +1148,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     k.add([
       k.text(`HI SCORE ${String(hiScore).padStart(5, "0")}`, { size: UI_FONT_SIZE, font }),
       k.color(255, 235, 59),
-      k.pos(W / 2, H * 0.57),
+      k.pos(W / 2, H * 0.505),
       k.anchor("center"),
     ]);
 
@@ -1089,7 +1156,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       k.text("PRESS SPACE TO RETRY", { size: 14, font }),
       k.color(0, 255, 65),
       k.opacity(1),
-      k.pos(W / 2, H * 0.68),
+      k.pos(W / 2, H * 0.6),
       k.anchor("center"),
     ]);
 
@@ -1101,9 +1168,9 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
 
     k.onKeyPress("space", () => k.go("game", { hiScore }));
     k.add([
-      k.text("PRESS T FOR TITLE", { size: 12, font }),
+      k.text("PRESS T FOR TITLE", { size: 14, font }),
       k.color(100, 100, 100),
-      k.pos(W / 2, H * 0.75),
+      k.pos(W / 2, H * 0.644),
       k.anchor("center"),
     ]);
     k.onKeyPress("t", () => k.go("title"));
