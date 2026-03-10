@@ -618,6 +618,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     let stepSound = 0;
 
     let alienCount = ENEMY_COLS * ENEMY_ROWS;
+    let aliveEnemies: GameObj[] = [];
     const aliensBulletChance = 0.003 + (level - 1) * 0.001;
 
     k.add([{ draw() {
@@ -771,6 +772,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
         enemies.push(e);
       }
     }
+    aliveEnemies = [...enemies];
 
     const shieldPositions = Array.from({ length: NUM_SHIELDS }, (_, i) =>
       Math.round(GUTTER + (i + 0.5) * (GAME_W - GUTTER * 2) / NUM_SHIELDS)
@@ -782,13 +784,14 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       [0,3],[4,3],[5,3],[6,3],[7,3],[8,3],[9,3],[10,3],[11,3],[12,3],[13,3],
     ];
     shieldPositions.forEach(sx => {
-      const remaining = new Set(shieldShape.map(([bx, by]) => `${bx},${by}`));
+      const drawCoords = shieldShape.map(([bx, by]) => ({ x: -2 + bx * 16, y: 2 + by * 12 }));
+      const alive = shieldShape.map(() => true);
       k.add([
         k.pos(sx - 112, GAME_H * 0.88 - 95),
         k.z(3),
-        { draw() { for (const key of remaining) { const [bx, by] = key.split(",").map(Number); k.drawRect({ pos: k.vec2(-2 + bx * 16, 2 + by * 12), width: 16, height: 12, color: k.rgb(...COLOR_SHADOW) }); } } },
+        { draw() { for (let i = 0; i < drawCoords.length; i++) { if (!alive[i]) continue; k.drawRect({ pos: k.vec2(drawCoords[i].x, drawCoords[i].y), width: 16, height: 12, color: k.rgb(...COLOR_SHADOW) }); } } },
       ]);
-      shieldShape.forEach(([bx, by]) => {
+      shieldShape.forEach(([bx, by], idx) => {
         const s = k.add([
           k.rect(16, 12),
           k.color(...COLOR_SHIELD),
@@ -797,7 +800,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
           k.z(4),
           "shield",
         ]);
-        s.onDestroy(() => remaining.delete(`${bx},${by}`));
+        s.onDestroy(() => { alive[idx] = false; });
         shields.push(s);
       });
     });
@@ -814,6 +817,29 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       ]);
     }
     spawnPlayer();
+
+    function renderSplat(pixels: { x: number; y: number; color: [number, number, number] }[], P: number) {
+      if (!pixels.length) return;
+      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+      for (const px of pixels) {
+        if (px.x < minX) minX = px.x;
+        if (px.y < minY) minY = px.y;
+        if (px.x + P > maxX) maxX = px.x + P;
+        if (px.y + P > maxY) maxY = px.y + P;
+      }
+      const offscreen = document.createElement("canvas");
+      offscreen.width = maxX - minX;
+      offscreen.height = maxY - minY;
+      const ctx = offscreen.getContext("2d")!;
+      for (const px of pixels) {
+        ctx.fillStyle = `rgb(${px.color[0]},${px.color[1]},${px.color[2]})`;
+        ctx.fillRect(px.x - minX, px.y - minY, P, P);
+      }
+      const name = `sp${Date.now()}${Math.random().toString(36).slice(2)}`;
+      k.loadSprite(name, offscreen.toDataURL()).then(() => {
+        k.add([k.sprite(name), k.pos(minX, minY), k.z(-1)]);
+      });
+    }
 
     function paintSplat(pos: ReturnType<typeof k.vec2>) {
       const P = 4;
@@ -872,11 +898,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
         }
       }
 
-      k.add([
-        k.pos(0, 0),
-        k.z(-1),
-        { draw() { for (const px of pixels) k.drawRect({ pos: k.vec2(px.x, px.y), width: P, height: P, color: k.rgb(px.color[0], px.color[1], px.color[2]) }); } },
-      ]);
+      renderSplat(pixels, P);
     }
 
     function paintSplatDown(pos: ReturnType<typeof k.vec2>) {
@@ -930,11 +952,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
           pixels.push({ x: cx + ddx + (s % 2) * P, y: cy + ddy + Math.floor(s / 2) * P, color });
       }
 
-      k.add([
-        k.pos(0, 0),
-        k.z(-1),
-        { draw() { for (const px of pixels) k.drawRect({ pos: k.vec2(px.x, px.y), width: P, height: P, color: k.rgb(px.color[0], px.color[1], px.color[2]) }); } },
-      ]);
+      renderSplat(pixels, P);
     }
 
     function explode(pos: ReturnType<typeof k.vec2>) {
@@ -999,8 +1017,6 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       }
 
       enemyMoveTimer += k.dt();
-      const aliveEnemies = enemies.filter(e => e.alive);
-      alienCount = aliveEnemies.length;
 
       if (alienCount === 0) {
         ufoSound?.stop(); ufoSound = null;
@@ -1019,27 +1035,24 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
 
         type EnemyE = { frame: number; pos: { x: number; y: number }; row: number };
         const te = aliveEnemies as unknown as EnemyE[];
-        te.forEach(e => { e.frame = e.row % 2 === 0 ? enemyFrame : (enemyFrame + 1) % 2; });
-
         let hitWall = false;
-        te.forEach(e => {
-          const nextX = e.pos.x + enemyDir * 12;
-          if (nextX < GUTTER || nextX > GAME_W - ENEMY_W - GUTTER) hitWall = true;
-        });
-
+        for (const e of te) {
+          e.frame = e.row % 2 === 0 ? enemyFrame : (enemyFrame + 1) % 2;
+          if (e.pos.x + enemyDir * 12 < GUTTER || e.pos.x + enemyDir * 12 > GAME_W - ENEMY_W - GUTTER) hitWall = true;
+        }
         if (hitWall) {
           enemyDir *= -1;
-          te.forEach(e => { e.pos.y += 10; });
-          te.forEach(e => {
+          for (const e of te) {
+            e.pos.y += 10;
             if (e.pos.y > GAME_H - 90) {
               gameOver = true;
               localStorage.setItem(LS_HI_KEY, String(Math.max(hiScore, score)));
               ufoSound?.stop(); ufoSound = null;
               k.go("gameover", { score, hiScore: Math.max(hiScore, score) });
             }
-          });
+          }
         } else {
-          te.forEach(e => { e.pos.x += enemyDir * 12; });
+          for (const e of te) e.pos.x += enemyDir * 12;
         }
       }
 
@@ -1088,6 +1101,9 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       if (!enemy.alive) return;
       bullet.destroy();
       enemy.alive = false;
+      const idx = aliveEnemies.indexOf(enemy);
+      if (idx !== -1) aliveEnemies.splice(idx, 1);
+      alienCount = aliveEnemies.length;
       score += enemy.pts;
       hiScore = Math.max(hiScore, score);
       localStorage.setItem(LS_HI_KEY, String(hiScore));
