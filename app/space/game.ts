@@ -90,36 +90,6 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
 
   // ─── SPRITES ───
 
-  // const playerPixels2 = [
-  //   0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,
-  //   0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,
-  //   0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,
-  //   0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,
-  //   0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,
-  //   0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,
-  //   0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,
-  //   0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,
-  //   0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,
-  //   0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,
-  //   0,0,0,0,0,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,
-  //   0,0,0,0,0,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,
-  //   0,0,0,0,1,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,0,
-  //   0,0,0,0,1,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,0,
-  //   0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,
-  //   0,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,
-  //   0,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,
-  //   0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,
-  //   0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,
-  //   0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,
-  //   0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,
-  //   0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,
-  //   0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,
-  //   1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,
-  //   1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,
-  //   1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,
-  // ].map((v) => (v ? 'rgb(255,255,255)' : null));
-  // k.loadSprite("player", makeSpriteDataURL(playerPixels2, 28, 26, 2));
-
   const playerPixels2 = [
     0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,
     0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,
@@ -388,6 +358,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
   ].map((v) => (v ? `rgb(${COLOR_UFO.join(',')})` : null));
   k.loadSprite("ufo", makeSpriteDataURL(ufoPixels, 16, 7, 4));
   k.loadSound("pew", "/game/audio/custom/pew-1.mp3");
+  k.loadSound("ohyeah", "/game/audio/custom/oh-yeah.mp3");
   k.loadSound("splat", "/game/audio/custom/splat-1.mp3");
   k.loadSound("boom", "/game/audio/custom/boom-1.mp3");
   k.loadSound("beep1", "/game/audio/beep-1.m4a");
@@ -567,6 +538,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     });
 
     k.onKeyPress("space", () => {
+      if (k.get("dialogBtn").length > 0) return;
       const W = k.width(), H = k.height();
       const DW = 480, DH = 160;
       const dx = W / 2 - DW / 2, dy = H / 2 - DH / 2;
@@ -1180,6 +1152,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       playerDead = true;
       playerDeadTimer = 1.5;
       playBeep(100, 0.3, "sawtooth", 0.2);
+      if (soundEnabled) k.play("ohyeah", { volume: 0.18 });
       explode(k.vec2(playerObj!.pos.x, playerObj!.pos.y));
     });
 
@@ -1197,6 +1170,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       renderLives();
       playerDead = true;
       playerDeadTimer = 1.5;
+      if (soundEnabled) k.play("ohyeah", { volume: 0.18 });
       player.destroy();
       k.wait(1.5, () => {
         localStorage.setItem(LS_HI_KEY, String(Math.max(hiScore, score)));
