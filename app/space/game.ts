@@ -360,7 +360,10 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
   k.loadSound("pew", "/game/audio/custom/pew-1.mp3");
   k.loadSound("ohyeah", "/game/audio/custom/oh-yeah.mp3");
   k.loadSound("splat", "/game/audio/custom/splat-1.mp3");
-  k.loadSound("boom", "/game/audio/custom/boom-1.mp3");
+  k.loadSound("explosion1", "/game/audio/custom/explosion-1.mp3");
+  k.loadSound("explosion2", "/game/audio/custom/explosion-2.mp3");
+  k.loadSound("explosion3", "/game/audio/custom/explosion-3.mp3");
+  k.loadSound("explosion4", "/game/audio/custom/explosion-4.mp3");
   k.loadSound("beep1", "/game/audio/beep-1.m4a");
   k.loadSound("beep2", "/game/audio/beep-2.m4a");
   k.loadSound("beep3", "/game/audio/beep-3.m4a");
@@ -444,6 +447,13 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       osc.stop(audioCtx.currentTime + dur);
     } catch (_) {}
   }
+
+  // ─── VISIBILITY ───
+  const onVisibilityChange = () => {
+    if (document.hidden) audioCtx.suspend();
+    else audioCtx.resume();
+  };
+  document.addEventListener("visibilitychange", onVisibilityChange);
 
   // ─── PERSISTENCE ───
 
@@ -554,19 +564,22 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
         [overlay, box].forEach(o => o.destroy());
         k.get("dialogBtn").forEach((o: GameObj) => o.destroy());
         k.get("dialogLabel").forEach((o: GameObj) => o.destroy());
+        enterHandler.cancel();
         k.go("game", { hiScore: persistedHiScore });
       };
 
-      const makeBtn = (label: string, bg: [number,number,number], fg: [number,number,number], bx: number, withSound: boolean) => {
-        const btn = k.add([k.rect(BTN_W, BTN_H), k.color(...bg), k.pos(bx, dy + 96), k.fixed(), k.z(52), k.area(), "dialogBtn"]);
+      const makeBtn = (label: string, bg: [number,number,number], fg: [number,number,number], bx: number, withSound: boolean, focused = false) => {
+        const btn = k.add([k.rect(BTN_W, BTN_H), k.color(...bg), k.outline(focused ? 2 : 0, k.rgb(255, 255, 255)), k.pos(bx, dy + 96), k.fixed(), k.z(52), k.area(), "dialogBtn"]);
         k.add([k.text(label, { size: 14, font }), k.color(...fg), k.pos(bx + BTN_W / 2, dy + 96 + BTN_H / 2), k.anchor("center"), k.fixed(), k.z(53), "dialogLabel"]);
         btn.onHover(() => { canvas.style.cursor = "pointer"; });
         btn.onHoverEnd(() => { canvas.style.cursor = "default"; });
         btn.onClick(() => startGame(withSound));
+        return { trigger: () => startGame(withSound) };
       };
 
       makeBtn("NO",  DIALOG_BTN_NO_BG,  DIALOG_BTN_NO_FG,  dx + 60,          false);
-      makeBtn("YES", DIALOG_BTN_YES_BG, DIALOG_BTN_YES_FG, dx + DW - 60 - BTN_W, true);
+      const yesBtn = makeBtn("YES", DIALOG_BTN_YES_BG, DIALOG_BTN_YES_FG, dx + DW - 60 - BTN_W, true, true);
+      const enterHandler = k.onKeyPress("enter", () => yesBtn.trigger());
     });
   });
 
@@ -650,11 +663,11 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
 
     // Sound toggle icon
     const soundIconObj = k.add([
-      { draw() { k.drawSprite({ sprite: "speaker", frame: soundIconObj.frame, anchor: "left", pos: k.vec2(-2, 2), color: k.rgb(...COLOR_SHADOW) }); } },
+      { draw() { k.drawSprite({ sprite: "speaker", frame: soundIconObj.frame, anchor: "center", pos: k.vec2(-2, 2), color: k.rgb(...COLOR_SHADOW) }); } },
       k.color(...COLOR_UI_FONT),
       k.sprite("speaker", { frame: soundEnabled ? 0 : 1 }),
-      k.pos(GUTTER / 2, GUTTER / 1.68),
-      k.anchor("left"),
+      k.pos(GAME_W / 2, GAME_H - GUTTER / 1.4),
+      k.anchor("center"),
       k.fixed(),
       k.z(10),
       k.area(),
@@ -673,7 +686,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     const scoreShadow = k.add([
       k.text(`SCORE ${score}`, { size: UI_FONT_SIZE, font }),
       k.color(...COLOR_SHADOW),
-      k.pos(GUTTER + 14, GUTTER / 1.6 + 2),
+      k.pos(GUTTER / 2, GUTTER / 1.6 + 2),
       k.anchor("left"),
       k.fixed(),
       k.z(9),
@@ -681,7 +694,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     const scoreTxt = k.add([
       k.text(`SCORE ${score}`, { size: UI_FONT_SIZE, font }),
       fgColor(),
-      k.pos(GUTTER + 16, GUTTER / 1.6),
+      k.pos(GUTTER / 2, GUTTER / 1.6),
       k.anchor("left"),
       k.fixed(),
       k.z(10),
@@ -1109,7 +1122,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       localStorage.setItem(LS_HI_KEY, String(hiScore));
       scoreTxt.text = scoreShadow.text = `SCORE ${score}`;
       hiTxt.text = hiShadow.text = `HI SCORE ${hiScore}`;
-      if (soundEnabled) k.play("boom", { volume: 0.22 });
+      if (soundEnabled) k.play(`explosion${Math.ceil(Math.random() * 4)}`, { volume: 0.22 });
       paintSplat(k.vec2(enemy.pos.x + 18, enemy.pos.y + 20));
       enemy.destroy();
       canShoot = true;
@@ -1168,7 +1181,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       playerDead = true;
       playerDeadTimer = 1.5;
       playBeep(100, 0.3, "sawtooth", 0.2);
-      if (soundEnabled) k.play("ohyeah", { volume: 0.18 });
+      if (soundEnabled) k.play("ohyeah", { volume: 0.08 });
       explode(k.vec2(playerObj!.pos.x, playerObj!.pos.y));
     });
 
@@ -1186,7 +1199,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       renderLives();
       playerDead = true;
       playerDeadTimer = 1.5;
-      if (soundEnabled) k.play("ohyeah", { volume: 0.18 });
+      if (soundEnabled) k.play("ohyeah", { volume: 0.08 });
       player.destroy();
       k.wait(1.5, () => {
         localStorage.setItem(LS_HI_KEY, String(Math.max(hiScore, score)));
@@ -1281,5 +1294,5 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
 
   k.go(INITIAL_SCENE);
 
-  return () => k.quit();
+  return () => { document.removeEventListener("visibilitychange", onVisibilityChange); k.quit(); };
 }
