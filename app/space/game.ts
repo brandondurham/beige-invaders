@@ -22,6 +22,7 @@ import {
   DIALOG_BTN_YES_FG,
   DIALOG_BTN_NO_BG,
   DIALOG_BTN_NO_FG,
+  ENEMY_SPEED_INCREASE_PER_LEVEL,
   NUM_COLORS_IN_SPLAT,
   NUM_SHIELDS,
   SPLAT_COLORS,
@@ -621,7 +622,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     let canShoot = true;
     let enemyDir = 1;
     let enemyMoveTimer = 0;
-    let enemyMoveInterval = Math.max(0.08, 0.5 - (level - 1) * 0.05);
+    let enemyMoveInterval = Math.max(0.08, 0.5 * Math.pow(1 - ENEMY_SPEED_INCREASE_PER_LEVEL, level - 1));
     let enemyFrame = 0;
     let ufoTimer = 0;
     let ufoInterval = k.rand(10, 20);

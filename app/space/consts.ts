@@ -18,6 +18,7 @@ export const COLOR_UFO = COLOR_BASE;
 export const COLOR_UI_FONT = [236, 236, 236] as [number, number, number];
 export const COLOR_LIVES = COLOR_UI_FONT;
 export const NUM_COLORS_IN_SPLAT = 5;
+export const ENEMY_SPEED_INCREASE_PER_LEVEL = 0.18;
 export const NUM_SHIELDS = 4;
 export const UI_FONT_SIZE = 16;
 export const DIALOG_QUESTION = "Would you like to enable sound?";
