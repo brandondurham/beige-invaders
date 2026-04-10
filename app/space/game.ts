@@ -544,6 +544,17 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     const level = data.level || 1;
     let hiScore = data.hiScore || 0;
 
+    // Debounced hi-score persist — avoids synchronous localStorage write on every kill.
+    let hiScoreSavePending = false;
+    const scheduleHiScoreSave = () => {
+      if (hiScoreSavePending) return;
+      hiScoreSavePending = true;
+      k.wait(0, () => {
+        localStorage.setItem(LS_HI_KEY, String(hiScore));
+        hiScoreSavePending = false;
+      });
+    };
+
     const enemies: GameObj[] = [];
     const shields: GameObj[] = [];
     let ufoObj: GameObj | null = null;
@@ -575,9 +586,11 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     let playerDeadTimer = 0;
     let stepSound = 0;
 
-    let alienCount = ENEMY_COLS * ENEMY_ROWS;
+    const TOTAL_ENEMIES = ENEMY_COLS * ENEMY_ROWS;
+    let alienCount = TOTAL_ENEMIES;
     let aliveEnemies: GameObj[] = [];
     const aliensBulletChance = 0.003 + (level - 1) * 0.001;
+    let speedFactor = enemyMoveInterval; // recalculated on each enemy death
 
     k.add([{ draw() {
       const spr = k.getSprite("bg");
@@ -998,8 +1011,6 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
         return;
       }
 
-      const speedFactor = Math.max(0.04, enemyMoveInterval * (alienCount / (ENEMY_COLS * ENEMY_ROWS)));
-
       if (enemyMoveTimer >= speedFactor) {
         enemyMoveTimer = 0;
         enemyFrame = (enemyFrame + 1) % 2;
@@ -1077,9 +1088,10 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       const idx = aliveEnemies.indexOf(enemy);
       if (idx !== -1) aliveEnemies.splice(idx, 1);
       alienCount = aliveEnemies.length;
+      speedFactor = Math.max(0.04, enemyMoveInterval * (alienCount / TOTAL_ENEMIES));
       score += enemy.pts;
       hiScore = Math.max(hiScore, score);
-      localStorage.setItem(LS_HI_KEY, String(hiScore));
+      scheduleHiScoreSave();
       scoreTxt.text = scoreShadow.text = `SCORE ${score}`;
       hiTxt.text = hiShadow.text = `HI SCORE ${hiScore}`;
       if (soundEnabled) k.play(`explosion${Math.ceil(Math.random() * 4)}`, { volume: 0.22 });
@@ -1093,7 +1105,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       const pts = [50, 100, 150, 300][Math.floor(Math.random() * 4)];
       score += pts;
       hiScore = Math.max(hiScore, score);
-      localStorage.setItem(LS_HI_KEY, String(hiScore));
+      scheduleHiScoreSave();
       scoreTxt.text = scoreShadow.text = `SCORE ${String(score).padStart(4, "0")}`;
       hiTxt.text = hiShadow.text = `HI ${String(hiScore).padStart(4, "0")}`;
       if (soundEnabled) k.play("fart", { volume: 0.5 });
