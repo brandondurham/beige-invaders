@@ -1,5 +1,6 @@
 
-const COLOR_BASE = [140, 130, 120] as [number, number, number];
+// const COLOR_BASE = [140, 130, 120] as [number, number, number];
+const COLOR_BASE = [158, 147, 136] as [number, number, number];
 const COLOR_HIGHLIGHT = [30, 100, 255] as [number, number, number];
 
 // export const COLOR_ENEMY = [187, 177, 158] as [number, number, number];

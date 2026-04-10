@@ -3,7 +3,6 @@ import kaplay, { type GameObj } from "kaplay";
 // Consts
 import {
   COLOR_ENEMY,
-  COLOR_BACKGROUND,
   COLOR_ENEMY_BULLET,
   COLOR_EXPLOSION,
   COLOR_H1,
@@ -32,10 +31,10 @@ import {
 export function initGame(canvas: HTMLCanvasElement): () => void {
   const k = kaplay({
     canvas,
-    width: window.innerWidth,
-    height: window.innerHeight,
     crisp: true,
-    background: COLOR_BACKGROUND,
+    height: window.innerHeight,
+    loadingScreen: true,
+    width: window.innerWidth,
   });
 
   const fgColor = () => k.color(COLOR_UI_FONT);
@@ -109,64 +108,6 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     1,1,1,1,1,1,1,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,
   ].map((v) => (v ? 'rgb(255,255,255)' : null));
   k.loadSprite("player", makeSpriteDataURL(playerPixels2, 22, 15, 3));
-
-  const enemyAF0 = [
-    0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0,
-    1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0,
-  ].map((v) => (v ? `rgb(${COLOR_ENEMY.join(',')})` : null) as (string | null));
-  const enemyAF1 = [
-    0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0,
-    0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-  ].map((v) => (v ? `rgb(${COLOR_ENEMY.join(',')})` : null));
-  k.loadSprite("enemyA", makeSpritesheetDataURL([enemyAF0, enemyAF1], 11, 8, 4), { sliceX: 2 });
-
-  const enemyBF0 = [
-    0,0,1,0,0,0,0,0,1,0,0,
-    0,0,0,1,0,0,0,1,0,0,0,
-    0,0,1,1,1,1,1,1,1,0,0,
-    0,1,1,0,1,1,1,0,1,1,0,
-    1,1,1,1,1,1,1,1,1,1,1,
-    1,0,1,1,1,1,1,1,1,0,1,
-    1,0,1,0,0,0,0,0,1,0,1,
-    0,0,0,1,1,0,1,1,0,0,0,
-  ].map(v => v ? `rgb(${COLOR_ENEMY.join(',')})` : null);
-  const enemyBF1 = [
-    0,0,1,0,0,0,0,0,1,0,0,
-    1,0,0,1,0,0,0,1,0,0,1,
-    1,0,1,1,1,1,1,1,1,0,1,
-    1,1,1,0,1,1,1,0,1,1,1,
-    1,1,1,1,1,1,1,1,1,1,1,
-    0,1,1,1,1,1,1,1,1,1,0,
-    0,0,1,0,0,0,0,0,1,0,0,
-    0,1,0,0,0,0,0,0,0,1,0,
-  ].map(v => v ? `rgb(${COLOR_ENEMY.join(',')})` : null);
-  k.loadSprite("enemyB", makeSpritesheetDataURL([enemyBF0, enemyBF1], 11, 8, 4), { sliceX: 2 });
-
-  const enemyCF0 = [
-    0,0,0,0,1,1,1,1,0,0,0,0,
-    0,0,0,1,1,1,1,1,1,0,0,0,
-    0,0,1,1,1,1,1,1,1,1,0,0,
-    0,1,1,0,1,1,1,1,0,1,1,0,
-    0,1,1,1,1,1,1,1,1,1,1,0,
-    0,0,1,1,1,0,0,1,1,1,0,0,
-    0,1,1,0,0,0,0,0,0,1,1,0,
-    0,0,1,0,0,0,0,0,0,1,0,0,
-  ].map(v => v ? `rgb(${COLOR_ENEMY.join(',')})` : null);
-  const enemyCF1 = [
-    0,0,0,0,1,1,1,1,0,0,0,0,
-    0,0,0,1,1,1,1,1,1,0,0,0,
-    0,0,1,1,1,1,1,1,1,1,0,0,
-    0,1,1,0,1,1,1,1,0,1,1,0,
-    0,1,1,1,1,1,1,1,1,1,1,0,
-    0,0,0,1,0,0,0,0,1,0,0,0,
-    0,0,1,0,1,0,0,1,0,1,0,0,
-    0,1,0,0,0,0,0,0,0,0,1,0,
-  ].map(v => v ? `rgb(${COLOR_ENEMY.join(',')})` : null);
-  k.loadSprite("enemyC", makeSpritesheetDataURL([enemyCF0, enemyCF1], 12, 8, 4), { sliceX: 2 });
 
   // ─── LETTER SPRITES (B-E-I-G-E) ───
 
@@ -358,9 +299,9 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
   ].map((v) => (v ? `rgb(${COLOR_UFO.join(',')})` : null));
   k.loadSprite("ufo", makeSpriteDataURL(ufoPixels, 16, 7, 4));
-  k.loadSound("pew", "/game/audio/custom/pew-1.mp3");
-  k.loadSound("ohyeah", "/game/audio/custom/oh-yeah.mp3");
-  k.loadSound("splat", "/game/audio/custom/splat-1.mp3");
+  for (let i = 1; i <= 6; i++) k.loadSound(`shoot${i}`, `/game/audio/custom/eep-${i}.mp3`);
+  k.loadSound("pop", "/game/audio/custom/pop.mp3");
+  k.loadSound("fart", "/game/audio/custom/fart.mp3");
   k.loadSound("explosion1", "/game/audio/custom/explosion-1.mp3");
   k.loadSound("explosion2", "/game/audio/custom/explosion-2.mp3");
   k.loadSound("explosion3", "/game/audio/custom/explosion-3.mp3");
@@ -369,8 +310,10 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
   k.loadSound("beep2", "/game/audio/beep-2.m4a");
   k.loadSound("beep3", "/game/audio/beep-3.m4a");
   k.loadSound("beep4", "/game/audio/beep-4.m4a");
+  k.loadSound("levelup", "/game/audio/custom/level-up.mp3");
   let ufoAudioBuf: AudioBuffer | null = null;
-  fetch("/game/audio/custom/ufo-1.mp3")
+  // fetch("/game/audio/custom/ufo-1.mp3")
+  fetch("/game/audio/custom/andrew-2.mp3")
     .then(r => { if (!r.ok) throw new Error(`ufo-1.mp3 fetch failed: ${r.status}`); return r.arrayBuffer(); })
     .then(buf => audioCtx.decodeAudioData(buf))
     .then(buffer => { ufoAudioBuf = buffer; })
@@ -548,8 +491,26 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       blink.opacity = Math.sin(blinkTimer * 4) > 0 ? 1 : 0;
     });
 
+    let soundsPrewarmed = false;
+    const prewarmSounds = () => {
+      if (soundsPrewarmed) return;
+      soundsPrewarmed = true;
+      if (audioCtx.state === "suspended") audioCtx.resume();
+      const names = [
+        ...Array.from({ length: 6 }, (_, i) => `shoot${i + 1}`),
+        "pop", "fart", "levelup", "explosion1", "explosion2", "explosion3", "explosion4",
+        "beep1", "beep2", "beep3", "beep4",
+      ];
+      for (const name of names) k.play(name, { volume: 0 });
+    };
+
     k.onKeyPress("space", () => {
+      prewarmSounds();
       if (k.get("dialogBtn").length > 0) return;
+      if (localStorage.getItem(LS_SOUND_KEY) !== null) {
+        k.go("game", { hiScore: persistedHiScore });
+        return;
+      }
       const W = k.width(), H = k.height();
       const DW = 480, DH = 160;
       const dx = W / 2 - DW / 2, dy = H / 2 - DH / 2;
@@ -612,7 +573,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       src.buffer = ufoAudioBuf;
       src.loop = true;
       const gain = audioCtx.createGain();
-      gain.gain.value = 0.4;
+      gain.gain.value = 0.2;
       src.connect(gain);
       gain.connect(audioCtx.destination);
       src.start();
@@ -993,7 +954,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
         k.z(6),
         "bullet",
       ]);
-      if (soundEnabled) k.play("pew", { volume: 4 });
+      if (soundEnabled) k.play(`shoot${Math.ceil(Math.random() * 6)}`, { volume: 0.5 });
       if (playerObj) {
         playerObj.color = k.rgb(...COLOR_PLAYER_ACTIVE);
         k.wait(0.08, () => { if (playerObj) playerObj.color = k.rgb(...COLOR_PLAYER); });
@@ -1034,6 +995,18 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
 
       if (alienCount === 0) {
         ufoSound?.stop(); ufoSound = null;
+        if (soundEnabled) {
+          const snd = k.play("levelup", { volume: 0.7 });
+          setTimeout(() => {
+            const steps = 20, dur = 600;
+            let step = 0;
+            const id = setInterval(() => {
+              step++;
+              snd.volume = 0.7 * (1 - step / steps);
+              if (step >= steps) { snd.stop(); clearInterval(id); }
+            }, dur / steps);
+          }, 3000);
+        }
         window.dispatchEvent(new CustomEvent('level-complete'));
         k.go("game", { score, lives, level: level + 1, hiScore: Math.max(hiScore, score) });
         return;
@@ -1137,7 +1110,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       localStorage.setItem(LS_HI_KEY, String(hiScore));
       scoreTxt.text = scoreShadow.text = `SCORE ${String(score).padStart(4, "0")}`;
       hiTxt.text = hiShadow.text = `HI ${String(hiScore).padStart(4, "0")}`;
-      if (soundEnabled) k.play("splat", { volume: 0.5 });
+      if (soundEnabled) k.play("fart", { volume: 0.5 });
       paintSplatDown(k.vec2(ufo.pos.x, ufo.pos.y));
       const floatTxt = k.add([
         k.text(`+${pts}`, { size: 14, font }),
@@ -1181,8 +1154,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       renderLives();
       playerDead = true;
       playerDeadTimer = 1.5;
-      playBeep(100, 0.3, "sawtooth", 0.2);
-      if (soundEnabled) k.play("ohyeah", { volume: 0.08 });
+      if (soundEnabled) k.play("pop", { volume: 0.8 });
       explode(k.vec2(playerObj!.pos.x, playerObj!.pos.y));
     });
 
@@ -1200,7 +1172,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       renderLives();
       playerDead = true;
       playerDeadTimer = 1.5;
-      if (soundEnabled) k.play("ohyeah", { volume: 0.08 });
+      if (soundEnabled) k.play("pop", { volume: 0.08 });
       player.destroy();
       k.wait(1.5, () => {
         localStorage.setItem(LS_HI_KEY, String(Math.max(hiScore, score)));
