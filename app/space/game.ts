@@ -375,23 +375,6 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
   const LS_SOUND_KEY = "beige-invaders-sound";
   let soundEnabled = localStorage.getItem(LS_SOUND_KEY) === "1";
 
-  function playBeep(freq = 440, dur = 0.05, type: OscillatorType = "square", vol = 0.15) {
-    if (!soundEnabled) return;
-    try {
-      if (audioCtx.state === "suspended") audioCtx.resume();
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.type = type;
-      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-      gain.gain.setValueAtTime(vol, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
-      osc.start(audioCtx.currentTime);
-      osc.stop(audioCtx.currentTime + dur);
-    } catch (_) {}
-  }
-
   // ─── VISIBILITY ───
   const onVisibilityChange = () => {
     if (document.hidden) audioCtx.suspend();
@@ -954,7 +937,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
         k.z(6),
         "bullet",
       ]);
-      if (soundEnabled) k.play(`shoot${Math.ceil(Math.random() * 6)}`, { volume: 0.5 });
+      if (soundEnabled) k.play(`shoot${Math.ceil(Math.random() * 6)}`, { volume: 0.3 });
       if (playerObj) {
         playerObj.color = k.rgb(...COLOR_PLAYER_ACTIVE);
         k.wait(0.08, () => { if (playerObj) playerObj.color = k.rgb(...COLOR_PLAYER); });
