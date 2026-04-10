@@ -776,72 +776,62 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     }
     spawnPlayer();
 
-    function renderSplat(pixels: { x: number; y: number; color: [number, number, number] }[], P: number) {
-      if (!pixels.length) return;
-      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-      for (const px of pixels) {
-        if (px.x < minX) minX = px.x;
-        if (px.y < minY) minY = px.y;
-        if (px.x + P > maxX) maxX = px.x + P;
-        if (px.y + P > maxY) maxY = px.y + P;
+    // ─── SPLAT PRE-GENERATION ───
+    // All canvas/DataURL work happens once at scene init; kill-time cost is just k.add().
+
+    type RelPixel = { dx: number; dy: number; color: [number, number, number] };
+    interface SplatEntry { name: string; offsetX: number; offsetY: number; }
+
+    function buildSplatEntry(relPixels: RelPixel[], tag: string, idx: number): SplatEntry {
+      const P = 4;
+      if (!relPixels.length) return { name: "", offsetX: 0, offsetY: 0 };
+      let minDx = Infinity, minDy = Infinity, maxDx = -Infinity, maxDy = -Infinity;
+      for (const px of relPixels) {
+        if (px.dx < minDx) minDx = px.dx;
+        if (px.dy < minDy) minDy = px.dy;
+        if (px.dx + P > maxDx) maxDx = px.dx + P;
+        if (px.dy + P > maxDy) maxDy = px.dy + P;
       }
       const offscreen = document.createElement("canvas");
-      offscreen.width = maxX - minX;
-      offscreen.height = maxY - minY;
+      offscreen.width = maxDx - minDx;
+      offscreen.height = maxDy - minDy;
       const ctx = offscreen.getContext("2d")!;
-      for (const px of pixels) {
+      for (const px of relPixels) {
         ctx.fillStyle = `rgb(${px.color[0]},${px.color[1]},${px.color[2]})`;
-        ctx.fillRect(px.x - minX, px.y - minY, P, P);
+        ctx.fillRect(px.dx - minDx, px.dy - minDy, P, P);
       }
-      const name = `sp${Date.now()}${Math.random().toString(36).slice(2)}`;
-      k.loadSprite(name, offscreen.toDataURL()).then(() => {
-        k.add([k.sprite(name), k.pos(minX, minY), k.z(-1)]);
-      });
+      const name = `splat_${tag}_${idx}`;
+      k.loadSprite(name, offscreen.toDataURL());
+      return { name, offsetX: minDx, offsetY: minDy };
     }
 
-    function paintSplat(pos: ReturnType<typeof k.vec2>) {
+    function genSplatRelPixels(): RelPixel[] {
       const P = 4;
       const scale = 0.4 + Math.random() * 1.5;
       const INNER_R = Math.round(16 * scale);
       const OUTER_R = Math.round(36 * scale);
-      const DROP_R  = Math.round(72 * scale); // outlier drops reach further
-      const pixels: { x: number; y: number; color: [number, number, number] }[] = [];
-
-      // Pick up to 5 colors for this splat
+      const DROP_R  = Math.round(72 * scale);
       const palette = [...SPLAT_COLORS].sort(() => Math.random() - 0.5).slice(0, NUM_COLORS_IN_SPLAT);
-
-      // Jagged edge: vary the effective radius per angular slice
       const SLICES = 24;
       const edgeR = Array.from({ length: SLICES }, () => INNER_R + Math.random() * (OUTER_R - INNER_R));
-
-      const cx = Math.round(pos.x / P) * P;
-      const cy = Math.round(pos.y / P) * P;
       const gridR = Math.ceil(OUTER_R / P);
-
-      // Patch palette: spatially grouped so adjacent pixels form color blobs
       const patchPalette = Array.from({ length: 12 }, () => palette[Math.floor(Math.random() * palette.length)]);
-
+      const pixels: RelPixel[] = [];
       for (let gy = -gridR; gy <= gridR; gy++) {
         for (let gx = -gridR; gx <= gridR; gx++) {
           const dx = gx * P, dy = gy * P;
           const dist = Math.sqrt(dx * dx + dy * dy);
           if (dist > OUTER_R) continue;
-
           const angle = Math.atan2(dy, dx);
           const slice = Math.floor(((angle + Math.PI) / (Math.PI * 2)) * SLICES) % SLICES;
           const localR = edgeR[slice];
-
           const fillChance = dist <= INNER_R ? 0.96 : 0.96 - 0.88 * ((dist - INNER_R) / (localR - INNER_R + 1));
           if (Math.random() > fillChance) continue;
-
           const patchX = Math.floor((gx + gridR) / 3);
           const patchY = Math.floor((gy + gridR) / 3);
-          const color = patchPalette[(patchX * 7 + patchY * 13) % patchPalette.length];
-          pixels.push({ x: cx + dx, y: cy + dy, color });
+          pixels.push({ dx, dy, color: patchPalette[(patchX * 7 + patchY * 13) % patchPalette.length] });
         }
       }
-
-      // Outlier drops scattered further out
       const NUM_DROPS = 8 + Math.floor(Math.random() * 6);
       for (let i = 0; i < NUM_DROPS; i++) {
         const angle = Math.random() * Math.PI * 2;
@@ -849,38 +839,28 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
         const ddx = Math.round((Math.cos(angle) * dist) / P) * P;
         const ddy = Math.round((Math.sin(angle) * dist) / P) * P;
         const color = palette[Math.floor(Math.random() * palette.length)];
-        // Small cluster of 1–4 pixels per drop
         const dropSize = 1 + Math.floor(Math.random() * 4);
-        for (let s = 0; s < dropSize; s++) {
-          pixels.push({ x: cx + ddx + (s % 2) * P, y: cy + ddy + Math.floor(s / 2) * P, color });
-        }
+        for (let s = 0; s < dropSize; s++)
+          pixels.push({ dx: ddx + (s % 2) * P, dy: ddy + Math.floor(s / 2) * P, color });
       }
-
-      renderSplat(pixels, P);
+      return pixels;
     }
 
-    function paintSplatDown(pos: ReturnType<typeof k.vec2>) {
+    function genSplatDownRelPixels(): RelPixel[] {
       const P = 4;
       const scale = (0.6 + Math.random() * 1.2) * 1.2;
       const INNER_R = Math.round(16 * scale);
       const OUTER_R = Math.round(36 * scale);
       const DROP_R  = Math.round(260 * scale);
-      const pixels: { x: number; y: number; color: [number, number, number] }[] = [];
-
       const palette = [...SPLAT_COLORS].sort(() => Math.random() - 0.5).slice(0, NUM_COLORS_IN_SPLAT);
-
-      // Slices 12–23 are the downward half (angle 0→π, i.e. positive dy in screen space)
       const SLICES = 24;
       const edgeR = Array.from({ length: SLICES }, (_, i) => {
         const t = INNER_R + Math.random() * (OUTER_R - INNER_R);
         return i >= 12 ? t * (1.8 + Math.random() * 0.7) : t * (0.3 + Math.random() * 0.25);
       });
-
-      const cx = Math.round(pos.x / P) * P;
-      const cy = Math.round(pos.y / P) * P;
       const gridR = Math.ceil(OUTER_R * 2 / P);
       const patchPalette = Array.from({ length: 12 }, () => palette[Math.floor(Math.random() * palette.length)]);
-
+      const pixels: RelPixel[] = [];
       for (let gy = -gridR; gy <= gridR; gy++) {
         for (let gx = -gridR; gx <= gridR; gx++) {
           const dx = gx * P, dy = gy * P;
@@ -893,11 +873,9 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
           if (Math.random() > fillChance) continue;
           const patchX = Math.floor((gx + gridR) / 3);
           const patchY = Math.floor((gy + gridR) / 3);
-          pixels.push({ x: cx + dx, y: cy + dy, color: patchPalette[(patchX * 7 + patchY * 13) % patchPalette.length] });
+          pixels.push({ dx, dy, color: patchPalette[(patchX * 7 + patchY * 13) % patchPalette.length] });
         }
       }
-
-      // Drip drops biased steeply downward
       const NUM_DROPS = 14 + Math.floor(Math.random() * 8);
       for (let i = 0; i < NUM_DROPS; i++) {
         const angle = Math.PI / 2 + (Math.random() - 0.5) * Math.PI * 0.35;
@@ -907,10 +885,35 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
         const color = palette[Math.floor(Math.random() * palette.length)];
         const dropSize = 1 + Math.floor(Math.random() * 5);
         for (let s = 0; s < dropSize; s++)
-          pixels.push({ x: cx + ddx + (s % 2) * P, y: cy + ddy + Math.floor(s / 2) * P, color });
+          pixels.push({ dx: ddx + (s % 2) * P, dy: ddy + Math.floor(s / 2) * P, color });
       }
+      return pixels;
+    }
 
-      renderSplat(pixels, P);
+    // Pre-generate 12 regular + 8 downward splat sprites at scene init.
+    const splatPool: SplatEntry[] = Array.from({ length: 12 }, (_, i) =>
+      buildSplatEntry(genSplatRelPixels(), "n", i)
+    );
+    const splatDownPool: SplatEntry[] = Array.from({ length: 8 }, (_, i) =>
+      buildSplatEntry(genSplatDownRelPixels(), "d", i)
+    );
+
+    function paintSplat(pos: ReturnType<typeof k.vec2>) {
+      const P = 4;
+      const entry = splatPool[Math.floor(Math.random() * splatPool.length)];
+      if (!entry.name) return;
+      const cx = Math.round(pos.x / P) * P;
+      const cy = Math.round(pos.y / P) * P;
+      k.add([k.sprite(entry.name), k.pos(cx + entry.offsetX, cy + entry.offsetY), k.z(-1)]);
+    }
+
+    function paintSplatDown(pos: ReturnType<typeof k.vec2>) {
+      const P = 4;
+      const entry = splatDownPool[Math.floor(Math.random() * splatDownPool.length)];
+      if (!entry.name) return;
+      const cx = Math.round(pos.x / P) * P;
+      const cy = Math.round(pos.y / P) * P;
+      k.add([k.sprite(entry.name), k.pos(cx + entry.offsetX, cy + entry.offsetY), k.z(-1)]);
     }
 
     function explode(pos: ReturnType<typeof k.vec2>) {
@@ -1121,6 +1124,9 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
         bullet._shieldHit = undefined;
         bullet.destroy();
         canShoot = true;
+      } else if (b.pos.y < 0) {
+        b.destroy();
+        canShoot = true;
       }
     });
 
@@ -1143,10 +1149,6 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
 
     k.on("update", "enemyBullet", (eb: any) => {
       if (eb.pos.y > GAME_H) eb.destroy();
-    });
-
-    k.on("update", "bullet", (b: any) => {
-      if (b.pos.y < 0) { b.destroy(); canShoot = true; }
     });
 
     k.onCollide("enemy", "player", (enemy: any, player: any) => {
