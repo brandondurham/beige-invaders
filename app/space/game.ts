@@ -4,7 +4,6 @@ import kaplay, { type GameObj } from "kaplay";
 import {
   COLOR_ENEMY,
   COLOR_ENEMY_BULLET,
-  COLOR_EXPLOSION,
   COLOR_H1,
   COLOR_LIVES,
   COLOR_PLAYER,
@@ -329,12 +328,41 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
   );
   k.loadSprite("enemyBullet", makeSpriteDataURL(enemyBulletPixels, 40, 80, 10));
 
-  const explPixels = [
-    0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1,
-    0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0,
-    1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0,
-  ].map((v) => (v ? `rgb(${COLOR_EXPLOSION.join(',')})` : null));
-  k.loadSprite("explosion", makeSpriteDataURL(explPixels, 8, 8, 4));
+  const pixels = [
+    0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,
+    0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,
+    0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,
+    0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,
+    0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,
+    1,1,1,1,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,1,1,1,1,
+    1,1,1,1,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,1,1,1,1,
+    1,1,1,1,0,0,0,0,1,1,1,1,0,0,1,1,1,1,0,0,1,1,1,1,0,0,0,0,1,1,1,1,
+    1,1,1,1,0,0,0,0,1,1,1,1,0,0,1,1,1,1,0,0,1,1,1,1,0,0,0,0,1,1,1,1,
+    1,1,1,1,0,0,0,0,1,1,1,1,0,0,1,1,1,1,0,0,1,1,1,1,0,0,0,0,1,1,1,1,
+    1,1,1,1,0,0,0,0,1,1,1,1,0,0,1,1,1,1,0,0,1,1,1,1,0,0,0,0,1,1,1,1,
+    1,1,1,1,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,1,1,1,1,
+    1,1,1,1,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,1,1,1,1,
+    0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,
+    0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,
+    0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,
+    0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,
+    0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0
+  ].map(v => v ? `rgb(255,255,255)` : null);
+  k.loadSprite("explosion", makeSpriteDataURL(pixels, 32, 32, 1));
 
   const shieldBlock = Array(48)
     .fill(1)
@@ -818,47 +846,6 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       return { name, offsetX: minDx, offsetY: minDy };
     }
 
-    function genSplatRelPixels(): RelPixel[] {
-      const P = 4;
-      const scale = 0.4 + Math.random() * 1.5;
-      const INNER_R = Math.round(16 * scale);
-      const OUTER_R = Math.round(36 * scale);
-      const DROP_R  = Math.round(72 * scale);
-      const palette = [...SPLAT_COLORS].sort(() => Math.random() - 0.5).slice(0, NUM_COLORS_IN_SPLAT);
-      const SLICES = 24;
-      const edgeR = Array.from({ length: SLICES }, () => INNER_R + Math.random() * (OUTER_R - INNER_R));
-      const gridR = Math.ceil(OUTER_R / P);
-      const patchPalette = Array.from({ length: 12 }, () => palette[Math.floor(Math.random() * palette.length)]);
-      const pixels: RelPixel[] = [];
-      for (let gy = -gridR; gy <= gridR; gy++) {
-        for (let gx = -gridR; gx <= gridR; gx++) {
-          const dx = gx * P, dy = gy * P;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist > OUTER_R) continue;
-          const angle = Math.atan2(dy, dx);
-          const slice = Math.floor(((angle + Math.PI) / (Math.PI * 2)) * SLICES) % SLICES;
-          const localR = edgeR[slice];
-          const fillChance = dist <= INNER_R ? 0.96 : 0.96 - 0.88 * ((dist - INNER_R) / (localR - INNER_R + 1));
-          if (Math.random() > fillChance) continue;
-          const patchX = Math.floor((gx + gridR) / 3);
-          const patchY = Math.floor((gy + gridR) / 3);
-          pixels.push({ dx, dy, color: patchPalette[(patchX * 7 + patchY * 13) % patchPalette.length] });
-        }
-      }
-      const NUM_DROPS = 8 + Math.floor(Math.random() * 6);
-      for (let i = 0; i < NUM_DROPS; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const dist = OUTER_R + Math.random() * (DROP_R - OUTER_R);
-        const ddx = Math.round((Math.cos(angle) * dist) / P) * P;
-        const ddy = Math.round((Math.sin(angle) * dist) / P) * P;
-        const color = palette[Math.floor(Math.random() * palette.length)];
-        const dropSize = 1 + Math.floor(Math.random() * 4);
-        for (let s = 0; s < dropSize; s++)
-          pixels.push({ dx: ddx + (s % 2) * P, dy: ddy + Math.floor(s / 2) * P, color });
-      }
-      return pixels;
-    }
-
     function genSplatDownRelPixels(): RelPixel[] {
       const P = 4;
       const scale = (0.6 + Math.random() * 1.2) * 1.2;
@@ -903,17 +890,61 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       return pixels;
     }
 
-    // Pre-generate 12 regular + 8 downward splat sprites at scene init.
-    const splatPool: SplatEntry[] = Array.from({ length: 12 }, (_, i) =>
-      buildSplatEntry(genSplatRelPixels(), "n", i)
+    function genSplatUpRelPixels(): RelPixel[] {
+      const P = 4;
+      const scale = 0.4 + Math.random() * 1.5;
+      const INNER_R = Math.round(16 * scale);
+      const OUTER_R = Math.round(36 * scale);
+      const DROP_R  = Math.round(130 * scale);
+      const palette = [...SPLAT_COLORS].sort(() => Math.random() - 0.5).slice(0, NUM_COLORS_IN_SPLAT);
+      const SLICES = 24;
+      const edgeR = Array.from({ length: SLICES }, (_, i) => {
+        const t = INNER_R + Math.random() * (OUTER_R - INNER_R);
+        return i < 12 ? t * (1.8 + Math.random() * 0.7) : t * (0.3 + Math.random() * 0.25);
+      });
+      const gridR = Math.ceil(OUTER_R * 2 / P);
+      const patchPalette = Array.from({ length: 12 }, () => palette[Math.floor(Math.random() * palette.length)]);
+      const pixels: RelPixel[] = [];
+      for (let gy = -gridR; gy <= gridR; gy++) {
+        for (let gx = -gridR; gx <= gridR; gx++) {
+          const dx = gx * P, dy = gy * P;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          const angle = Math.atan2(dy, dx);
+          const slice = Math.floor(((angle + Math.PI) / (Math.PI * 2)) * SLICES) % SLICES;
+          const localR = edgeR[slice];
+          if (dist > localR) continue;
+          const fillChance = dist <= INNER_R ? 0.96 : 0.96 - 0.88 * ((dist - INNER_R) / (localR - INNER_R + 1));
+          if (Math.random() > fillChance) continue;
+          const patchX = Math.floor((gx + gridR) / 3);
+          const patchY = Math.floor((gy + gridR) / 3);
+          pixels.push({ dx, dy, color: patchPalette[(patchX * 7 + patchY * 13) % patchPalette.length] });
+        }
+      }
+      const NUM_DROPS = 14 + Math.floor(Math.random() * 8);
+      for (let i = 0; i < NUM_DROPS; i++) {
+        const angle = -Math.PI / 2 + (Math.random() - 0.5) * Math.PI * 0.42;
+        const dist = OUTER_R + Math.random() * (DROP_R - OUTER_R);
+        const ddx = Math.round((Math.cos(angle) * dist) / P) * P;
+        const ddy = Math.round((Math.sin(angle) * dist) / P) * P;
+        const color = palette[Math.floor(Math.random() * palette.length)];
+        const dropSize = 1 + Math.floor(Math.random() * 5);
+        for (let s = 0; s < dropSize; s++)
+          pixels.push({ dx: ddx + (s % 2) * P, dy: ddy - Math.floor(s / 2) * P, color });
+      }
+      return pixels;
+    }
+
+    // Pre-generate 8 upward + 8 downward splat sprites at scene init.
+    const splatUpPool: SplatEntry[] = Array.from({ length: 8 }, (_, i) =>
+      buildSplatEntry(genSplatUpRelPixels(), "u", i)
     );
     const splatDownPool: SplatEntry[] = Array.from({ length: 8 }, (_, i) =>
       buildSplatEntry(genSplatDownRelPixels(), "d", i)
     );
 
-    function paintSplat(pos: ReturnType<typeof k.vec2>) {
+    function paintSplatUp(pos: ReturnType<typeof k.vec2>) {
       const P = 4;
-      const entry = splatPool[Math.floor(Math.random() * splatPool.length)];
+      const entry = splatUpPool[Math.floor(Math.random() * splatUpPool.length)];
       if (!entry.name) return;
       const cx = Math.round(pos.x / P) * P;
       const cy = Math.round(pos.y / P) * P;
@@ -1095,7 +1126,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       scoreTxt.text = scoreShadow.text = `SCORE ${score}`;
       hiTxt.text = hiShadow.text = `HI SCORE ${hiScore}`;
       if (soundEnabled) k.play(`explosion${Math.ceil(Math.random() * 4)}`, { volume: 0.22 });
-      paintSplat(k.vec2(enemy.pos.x + 18, enemy.pos.y + 20));
+      paintSplatUp(k.vec2(enemy.pos.x + 18, enemy.pos.y + 20));
       enemy.destroy();
       canShoot = true;
     });
