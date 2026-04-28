@@ -3,7 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { COLOR_BACKGROUND, SPLAT_COLORS, COLOR_PLAYER, COLOR_PLAYER_ACTIVE, COLOR_ENEMY } from "../space/consts";
 import { SPRITES, type Sprite } from "./sprites";
-import { Tabs } from "@chakra-ui/react"
+import { Button, Radio, Space } from 'antd';
 
 const GRID_COLS = 32;
 const GRID_ROWS = 32;
@@ -222,17 +222,11 @@ export default function BuilderPage() {
 
           {/* Toolbar */}
           <div style={{ display: "flex", gap: 10, marginBottom: 18, alignItems: "center", flexWrap: "wrap", justifyContent: "center" }}>
-            <Tabs.Root
-              defaultValue="members"
-              orientation='vertical'
-              variant="subtle"
-            >
-              <Tabs.List>
-                <Tabs.Trigger value="members">Members</Tabs.Trigger>
-                <Tabs.Trigger value="projects">Projects</Tabs.Trigger>
-                <Tabs.Trigger value="tasks">Settings</Tabs.Trigger>
-              </Tabs.List>
-            </Tabs.Root>
+            <Radio.Group vertical>
+              <Radio.Button value="large">Large</Radio.Button>
+              <Radio.Button value="medium">Medium</Radio.Button>
+              <Radio.Button value="small">Small</Radio.Button>
+            </Radio.Group>
             <button
               onClick={() => setTool("paint")}
               style={{ ...btnBase, background: tool === "paint" ? "#333" : bgDark, color: tool === "paint" ? "#fff" : "#333" }}
@@ -294,8 +288,8 @@ export default function BuilderPage() {
             ))}
           </div>
         </div>
-        <div className="aspect-square bg-[#7db8e4] border-l-px border-gray-300">
-          <div className="grid grid-cols-32 gap-px h-full p-px touch-none">
+        <div className="aspect-square bg-[#7db8e4]">
+          <div className="grid grid-cols-32 gap-px h-full p-px touch-none border-l-px border-red-600">
             {grid.map((row, ri) =>
               row.map((filled, ci) => (
                 <div
