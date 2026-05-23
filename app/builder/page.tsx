@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
-import { COLOR_BACKGROUND, SPLAT_COLORS, COLOR_PLAYER, COLOR_PLAYER_ACTIVE, COLOR_ENEMY } from "../space/consts";
+import { COLOR_CANVAS_BG, SPLAT_COLORS, COLOR_PLAYER, COLOR_PLAYER_ACTIVE, COLOR_ENEMY } from "../space/consts";
 import { SPRITES, type Sprite } from "./sprites";
-import { Button, Radio, Space } from 'antd';
+import { Radio } from 'antd';
 
 const GRID_COLS = 32;
 const GRID_ROWS = 32;
@@ -19,8 +19,8 @@ const PALETTE: { name: string; rgb: RGB }[] = [
   ...SPLAT_COLORS.slice(0, 5).map((rgb, i) => ({ name: `Color ${i + 5}`, rgb })),
 ];
 
-const bg = `rgb(${COLOR_BACKGROUND.join(",")})`;
-const bgDark = `rgb(${COLOR_BACKGROUND.map(v => Math.round(v * 0.88)).join(",")})`;
+const bg = `rgb(${COLOR_CANVAS_BG.join(",")})`;
+const bgDark = `rgb(${COLOR_CANVAS_BG.map(v => Math.round(v * 0.88)).join(",")})`;
 const cellEmpty = 'rgb(255 255 255)';
 
 function makeEmptyGrid(): boolean[][] {
