@@ -86,10 +86,49 @@ const themes = {
     SPLAT_COLORS: SPLAT_VIVID,
   },
 
+  beige: {
+    HAS_SHADOW: true,
+    COLOR_CANVAS_BG:        [23, 21, 20] as RGB,
+    COLOR_H1:               [230, 217, 206] as RGB,
+    COLOR_PLAYER:           [255, 244, 232] as RGB,
+    COLOR_PLAYER_ACTIVE:    [255, 246, 234] as RGB,
+    COLOR_PLAYER_BULLET:    [255, 244, 232] as RGB,
+    COLOR_GAMEOVER_HEADING: [230, 217, 206] as RGB,
+    COLOR_UI_FONT:          [182, 169, 155] as RGB,
+    COLOR_LIVES:            [182, 169, 155] as RGB,
+    COLOR_ACCENT:           [255, 244, 232] as RGB,
+    COLOR_DIM:              [75, 60, 49] as RGB,
+    COLOR_ENEMY:            [111, 96, 80] as RGB,
+    COLOR_ENEMY_ROWS: [
+      [95, 80, 67],
+      [125, 111, 95],
+      [155, 141, 124],
+      [182, 169, 155],
+      [214, 200, 179],
+    ] as RGB[],
+    COLOR_ENEMY_BULLET:     [205, 190, 172] as RGB,
+    COLOR_EXPLOSION:        [151, 136, 119] as RGB,
+    COLOR_FRAME:            [55, 53, 50] as RGB,    // unchanged
+    COLOR_HI_SCORE:         [230, 217, 206] as RGB,
+    COLOR_SHADOW:           [8, 8, 6] as RGB,       // unchanged
+    COLOR_SHIELD:           [85, 71, 57] as RGB,
+    COLOR_UFO:              [242, 230, 211] as RGB,
+    DIALOG_BG:              [16, 7, 7] as RGB,
+    DIALOG_FG:              [217, 203, 189] as RGB,
+    DIALOG_BTN_YES_BG:      [230, 217, 206] as RGB,
+    DIALOG_BTN_YES_FG:      [16, 7, 7] as RGB,
+    DIALOG_BTN_NO_BG:       [43, 31, 25] as RGB,
+    DIALOG_BTN_NO_FG:       [182, 169, 155] as RGB,
+    COLOR_TOUCH_BTN_BG:     'rgba(213,193,168,0.08)',
+    COLOR_TOUCH_BTN_BORDER: 'rgba(213,193,168,0.35)',
+    COLOR_TOUCH_BTN_TEXT:   'rgba(213,193,168,0.7)',
+    SPLAT_COLORS: SPLAT_VIVID,                      // unchanged
+  },
+
 } satisfies Record<string, Theme>;
 
 export type ThemeName = keyof typeof themes;
-export const ACTIVE_THEME: ThemeName = 'bandw';
+export const ACTIVE_THEME: ThemeName = 'beige';
 
 const t = themes[ACTIVE_THEME];
 
