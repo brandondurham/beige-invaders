@@ -421,7 +421,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1,
     0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
   ].map((v) => (v ? `rgb(${COLOR_UFO.join(',')})` : null));
-  k.loadSprite("ufo", makeSpriteDataURL(ufoPixels, 16, 7, 4.5));
+  k.loadSprite("ufo", makeSpriteDataURL(ufoPixels, 16, 7, 4));
   for (let i = 1; i <= 6; i++) k.loadSound(`shoot${i}`, `/game/audio/custom/eep-${i}.mp3`);
   k.loadSound("pop", "/game/audio/custom/pop.mp3");
   k.loadSound("fart", "/game/audio/custom/fart.mp3");
@@ -435,7 +435,6 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
   k.loadSound("beep4", "/game/audio/beep-4.m4a");
   k.loadSound("levelup", "/game/audio/custom/level-up.mp3");
   let ufoAudioBuf: AudioBuffer | null = null;
-  // fetch("/game/audio/custom/ufo-1.mp3")
   fetch("/game/audio/custom/andrew-2.mp3")
     .then(r => { if (!r.ok) throw new Error(`ufo-1.mp3 fetch failed: ${r.status}`); return r.arrayBuffer(); })
     .then(buf => audioCtx.decodeAudioData(buf))
@@ -857,10 +856,9 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       k.get("lifeIcon").forEach((o: ReturnType<typeof k.add>) => o.destroy());
       for (let i = 0; i < lives; i++) {
         k.add([
-          ...(HAS_SHADOW ? [{ draw() { k.drawSprite({ sprite: "player", pos: k.vec2(-2, 2), color: k.rgb(...COLOR_SHADOW) }); } }] : []),
+          ...(HAS_SHADOW ? [{ draw() { k.drawText({ text: "A", font, size: 30, pos: k.vec2(-2, 2), color: k.rgb(...COLOR_SHADOW) }); } }] : []),
           k.color(...COLOR_LIVES),
-          k.sprite("player"),
-          k.scale(0.5),
+          k.text("A", { font, size: 30 }),
           k.pos(GUTTER / 2 + i * 40, GAME_H - (GUTTER * 0.9)),
           k.fixed(),
           k.z(10),
@@ -974,7 +972,6 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
         const s = k.add([
           k.rect(SHIELD_BLOCK_W, SHIELD_BLOCK_H),
           k.color(...COLOR_SHIELD),
-          k.outline(2, k.rgb(...COLOR_SHADOW)),
           k.pos(sx - shieldCenterX + bx * SHIELD_BLOCK_W, shieldOriginY + by * SHIELD_BLOCK_H),
           k.area(),
           k.z(4),
@@ -988,14 +985,14 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     function spawnPlayer() {
       playerObj = k.add([
         { draw() {
-          k.drawSprite({ sprite: "player", anchor: "center", pos: k.vec2(-6, 6), color: k.rgb(...COLOR_SHADOW) });
+          k.drawText({ text: "A", font, size: 60, anchor: "center", pos: k.vec2(-6, 6), color: k.rgb(...COLOR_SHADOW) });
           for (const [dx, dy] of [[-3,-3],[0,-3],[3,-3],[-3,0],[3,0],[-3,3],[0,3],[3,3]] as [number,number][]) {
-            k.drawSprite({ sprite: "player", anchor: "center", pos: k.vec2(dx, dy), color: k.rgb(...COLOR_SHADOW) });
+            k.drawText({ text: "A", font, size: 60, anchor: "center", pos: k.vec2(dx, dy), color: k.rgb(...COLOR_SHADOW) });
           }
         } },
         k.color(...COLOR_PLAYER),
-        k.sprite("player"),
-        k.pos(GAME_W / 2, GAME_H - GUTTER - 38),
+        k.text("A", { font, size: 60 }),
+        k.pos(GAME_W / 2, GAME_H - GUTTER - 50),
         k.anchor("center"),
         k.area(),
         "player",

@@ -128,7 +128,7 @@ const themes = {
 } satisfies Record<string, Theme>;
 
 export type ThemeName = keyof typeof themes;
-export const ACTIVE_THEME: ThemeName = 'beige';
+export const ACTIVE_THEME: ThemeName = 'bandw';
 
 const t = themes[ACTIVE_THEME];
 
