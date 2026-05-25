@@ -215,6 +215,7 @@ export default function SpacePage() {
           />
         </>
       )}
+      <div className="fixed inset-[2vmin] bg-cover mix-blend-color-dodge z-1" style={{ backgroundImage: 'url(/bg-space.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
     </div>
   );
 }
