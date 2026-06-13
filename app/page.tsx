@@ -142,6 +142,7 @@ export default function SpacePage() {
   return (
     <div className="w-screen h-screen overflow-hidden bg-black">
       <canvas
+        className="z-10"
         ref={canvasRef}
         style={{
           display: "block",
@@ -170,7 +171,7 @@ export default function SpacePage() {
         </defs>
       </svg>
       <div
-        className="fixed inset-0 inset-ring-[2vmin] inset-ring-(--color-player) pointer-events-none"
+        className="fixed inset-0 inset-ring-[2vmin] inset-ring-(--color-player) pointer-events-none z-30"
         style={{ '--color-player': `rgb(${ringColor.join(',')})` } as React.CSSProperties}
       />
       {isTouchDevice && scene === 'game' && (
@@ -215,7 +216,7 @@ export default function SpacePage() {
           />
         </>
       )}
-      <div className="fixed inset-[2vmin] bg-cover mix-blend-color-dodge z-1" style={{ backgroundImage: 'url(/bg-space.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
+      <div className="fixed inset-[2vmin] bg-cover mix-blend-color-dodge z-20 pointer-events-none opacity-70" style={{ backgroundImage: 'url(/bg-space.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
     </div>
   );
 }
