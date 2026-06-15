@@ -29,9 +29,6 @@ interface Theme {
   DIALOG_BTN_YES_FG: RGB;
   DIALOG_BTN_NO_BG: RGB;
   DIALOG_BTN_NO_FG: RGB;
-  COLOR_TOUCH_BTN_BG: string;
-  COLOR_TOUCH_BTN_BORDER: string;
-  COLOR_TOUCH_BTN_TEXT: string;
   SPLAT_COLORS: RGB[];
 }
 
@@ -74,11 +71,11 @@ const themes = {
     COLOR_DIM:              [65, 63, 60] as RGB,
     COLOR_ENEMY:            [100, 98, 93] as RGB,
     COLOR_ENEMY_ROWS: [
-      [205, 197, 189],
-      [154, 148, 142],
-      [115, 111, 106],
-      [ 86,  83,  80],
-      [ 65,  62,  60],
+      [205, 190, 175],
+      [175, 160, 145],
+      [145, 130, 115],
+      [115, 100,  85],
+      [85,  70,  55],
     ] as RGB[],
     COLOR_ENEMY_BULLET:     [195, 192, 186] as RGB,
     COLOR_EXPLOSION:        [140, 138, 132] as RGB,
@@ -93,9 +90,6 @@ const themes = {
     DIALOG_BTN_YES_FG:      [10, 10, 8] as RGB,
     DIALOG_BTN_NO_BG:       [35, 33, 30] as RGB,
     DIALOG_BTN_NO_FG:       [175, 172, 165] as RGB,
-    COLOR_TOUCH_BTN_BG:     'rgba(200,198,192,0.08)',
-    COLOR_TOUCH_BTN_BORDER: 'rgba(200,198,192,0.35)',
-    COLOR_TOUCH_BTN_TEXT:   'rgba(200,198,192,0.7)',
     SPLAT_COLORS: SPLAT_VIVID,
   },
   memphis: {
@@ -131,9 +125,6 @@ const themes = {
     DIALOG_BTN_YES_FG:      [14, 12, 10] as RGB,
     DIALOG_BTN_NO_BG:       [40, 36, 32] as RGB,
     DIALOG_BTN_NO_FG:       [160, 155, 145] as RGB,
-    COLOR_TOUCH_BTN_BG:     'rgba(28,118,194,0.12)',
-    COLOR_TOUCH_BTN_BORDER: 'rgba(28,118,194,0.45)',
-    COLOR_TOUCH_BTN_TEXT:   'rgba(174,218,226,0.8)',
     SPLAT_COLORS: SPLAT_MEMPHIS,
   },
 } satisfies Record<string, Theme>;
@@ -171,9 +162,6 @@ export const {
   DIALOG_BTN_YES_FG,
   DIALOG_BTN_NO_BG,
   DIALOG_BTN_NO_FG,
-  COLOR_TOUCH_BTN_BG,
-  COLOR_TOUCH_BTN_BORDER,
-  COLOR_TOUCH_BTN_TEXT,
   SPLAT_COLORS,
 } = t;
 

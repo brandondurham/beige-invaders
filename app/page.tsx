@@ -9,7 +9,8 @@ export default function SpacePage() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const grainRef = useRef<SVGFETurbulenceElement>(null)
   const [ringColor, setRingColor] = useState(COLOR_FRAME)
-  const [scene, setScene] = useState<string>('title')
+  const [, setScene] = useState<string>('title')
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -17,12 +18,12 @@ export default function SpacePage() {
     let cleanup: (() => void) | undefined
     Promise.all([import('./space/game'), document.fonts.load('16px Kongtext')]).then(([{ initGame }]) => {
       cleanup = initGame(canvas)
+      setLoading(false)
     })
     return () => cleanup?.()
   }, [])
 
   useEffect(() => {
-    if ('ontouchstart' in window || navigator.maxTouchPoints > 0) return
     let frame: number
     let seed = 0
     const tick = () => {
@@ -96,6 +97,11 @@ export default function SpacePage() {
           width: "min(calc(100vw - 86px), calc((100vh - 86px) * 224 / 256))",
         }}
       />
+      {loading && (
+        <div className="fixed inset-0 flex items-center justify-center z-30 bg-black">
+          <span className="text-white text-sm font-mono">Loading…</span>
+        </div>
+      )}
     </div>
   );
 }

@@ -77,8 +77,6 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
   `);
   k.usePostEffect("crt");
 
-  const touchInput = { left: false, right: false, shoot: false };
-  (window as any).__spaceTouchInput = touchInput;
 
   const fgColor = () => k.color(COLOR_UI_FONT);
   const [SHADOW_R, SHADOW_G, SHADOW_B, SHADOW_A] = COLOR_SHADOW;
@@ -633,9 +631,8 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       ]);
     });
 
-    const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     const blink = k.add([
-      k.text(isTouch ? "< TAP SCREEN TO PLAY >" : "< PRESS SPACE TO PLAY >", { size: 14, font }),
+      k.text("< PRESS SPACE TO PLAY >", { size: 14, font }),
       k.color(...COLOR_WHITE),
       k.opacity(1),
       k.pos(W / 2, H * 0.85),
@@ -703,12 +700,6 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     k.onKeyPress("space", handleTitleAction);
     k.onMousePress(handleTitleAction);
 
-    let titlePrevShoot = false;
-    k.onUpdate(() => { 
-      const fired = touchInput.shoot && !titlePrevShoot;
-      titlePrevShoot = touchInput.shoot;
-      if (fired) handleTitleAction();
-    });
   });
 
   k.scene("game", (data: Record<string, number> = {}) => {
@@ -1190,16 +1181,6 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
         return;
       }
 
-      if (touchInput.left && playerObj) {
-        const p = playerObj as unknown as { pos: { x: number } };
-        p.pos.x = Math.max(GUTTER, p.pos.x - 286 * k.dt());
-      }
-      if (touchInput.right && playerObj) {
-        const p = playerObj as unknown as { pos: { x: number } };
-        p.pos.x = Math.min(GAME_W - GUTTER, p.pos.x + 286 * k.dt());
-      }
-      if (touchInput.shoot) doShoot();
-
       enemyMoveTimer += k.dt();
 
       if (alienCount === 0) {
@@ -1297,15 +1278,16 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       }
     });
 
-    k.onCollide("bullet", "enemy", (bullet: any, enemy: any) => {
-      if (!enemy.alive) return;
+    k.onCollide("bullet", "enemy", (bullet: GameObj, enemy: GameObj) => {
+      const e = enemy as GameObj & { alive: boolean; pts: number };
+      if (!e.alive) return;
       bullet.destroy();
-      enemy.alive = false;
+      e.alive = false;
       const idx = aliveEnemies.indexOf(enemy);
       if (idx !== -1) aliveEnemies.splice(idx, 1);
       alienCount = aliveEnemies.length;
       speedFactor = Math.max(0.04, enemyMoveInterval * (alienCount / TOTAL_ENEMIES));
-      score += enemy.pts;
+      score += e.pts;
       hiScore = Math.max(hiScore, score);
       scheduleHiScoreSave();
       scoreTxt.text = `SCORE ${score}`;
@@ -1318,7 +1300,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       canShoot = true;
     });
 
-    k.onCollide("bullet", "ufo", (bullet: any, ufo: any) => {
+    k.onCollide("bullet", "ufo", (bullet: GameObj, ufo: GameObj) => {
       bullet.destroy();
       const pts = [50, 100, 150, 300][Math.floor(Math.random() * 4)];
       score += pts;
@@ -1359,12 +1341,12 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       }
     });
 
-    k.onCollide("enemyBullet", "shield", (eb: any, shield: any) => {
+    k.onCollide("enemyBullet", "shield", (eb: GameObj, shield: GameObj) => {
       eb.destroy();
       shield.destroy();
     });
 
-    k.onCollide("enemyBullet", "player", (eb: any, player: any) => {
+    k.onCollide("enemyBullet", "player", (eb: GameObj, player: GameObj) => {
       if (playerDead) return;
       eb.destroy();
       player.destroy();
@@ -1376,11 +1358,11 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       explode(k.vec2(playerObj!.pos.x, playerObj!.pos.y));
     });
 
-    k.on("update", "enemyBullet", (eb: any) => {
+    k.on("update", "enemyBullet", (eb: GameObj) => {
       if (eb.pos.y > GAME_H) eb.destroy();
     });
 
-    k.onCollide("enemy", "player", (enemy: any, player: any) => {
+    k.onCollide("enemy", "player", (enemy: GameObj, player: GameObj) => {
       if (playerDead) return;
       lives = 0;
       renderLives();
@@ -1447,9 +1429,8 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       k.anchor("center"),
     ]);
 
-    const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     const blink = k.add([
-      k.text(isTouch ? "TAP SCREEN TO RETRY" : "PRESS SPACE TO RETRY", { size: 14, font }),
+      k.text("PRESS SPACE TO RETRY", { size: 14, font }),
       k.color(...COLOR_ACCENT),
       k.opacity(1),
       k.pos(W / 2, H * 0.6),
@@ -1465,12 +1446,6 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     k.onKeyPress("space", () => k.go("game", { hiScore }));
     k.onMousePress(() => k.go("game", { hiScore }));
 
-    let gameoverPrevShoot = false;
-    k.onUpdate(() => {
-      const fired = touchInput.shoot && !gameoverPrevShoot;
-      gameoverPrevShoot = touchInput.shoot;
-      if (fired) k.go("game", { hiScore });
-    });
 
     k.add([
       k.text("PRESS T FOR TITLE", { size: 14, font }),
@@ -1485,5 +1460,5 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
 
   k.go(INITIAL_SCENE);
 
-  return () => { document.removeEventListener("visibilitychange", onVisibilityChange); delete (window as any).__spaceTouchInput; k.quit(); };
+  return () => { document.removeEventListener("visibilitychange", onVisibilityChange); k.quit(); };
 }
