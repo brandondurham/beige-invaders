@@ -784,7 +784,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       ...(HAS_SHADOW ? [{ draw() { k.drawSprite({ sprite: "speaker", frame: soundIconObj.frame, anchor: "center", pos: k.vec2(-2, 2), color: shadowRgb(), opacity: SHADOW_A }); } }] : []),
       k.color(...COLOR_UI_FONT),
       k.sprite("speaker", { frame: soundEnabled ? 0 : 1 }),
-      k.pos(GAME_W / 2, GAME_H - GUTTER / 1.4),
+      k.pos(GAME_W / 2, GAME_H - GUTTER),
       k.anchor("center"),
       k.fixed(),
       k.z(10),
@@ -963,37 +963,9 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     }
     spawnPlayer();
 
-    // ─── SPLAT PRE-GENERATION ───
-    // All canvas/DataURL work happens once at scene init; kill-time cost is just k.add().
+    // ─── SPLAT ───
 
     type RelPixel = { dx: number; dy: number; color: [number, number, number]; opacity: number };
-    interface SplatEntry { name: string; offsetX: number; offsetY: number; }
-
-    function buildSplatEntry(relPixels: RelPixel[], tag: string, idx: number): SplatEntry {
-      const P = 4;
-      if (!relPixels.length) return { name: "", offsetX: 0, offsetY: 0 };
-      let minDx = Infinity, minDy = Infinity, maxDx = -Infinity, maxDy = -Infinity;
-      for (const px of relPixels) {
-        if (px.dx < minDx) minDx = px.dx;
-        if (px.dy < minDy) minDy = px.dy;
-        if (px.dx + P > maxDx) maxDx = px.dx + P;
-        if (px.dy + P > maxDy) maxDy = px.dy + P;
-      }
-      const offscreen = document.createElement("canvas");
-      offscreen.width = maxDx - minDx;
-      offscreen.height = maxDy - minDy;
-      const ctx = offscreen.getContext("2d")!;
-      ctx.imageSmoothingEnabled = false;
-      for (const px of relPixels) {
-        ctx.globalAlpha = px.opacity;
-        ctx.fillStyle = `rgb(${px.color[0]},${px.color[1]},${px.color[2]})`;
-        ctx.fillRect(px.dx - minDx, px.dy - minDy, P, P);
-      }
-      ctx.globalAlpha = 1;
-      const name = `splat_${tag}_${idx}`;
-      k.loadSprite(name, offscreen.toDataURL());
-      return { name, offsetX: minDx, offsetY: minDy };
-    }
 
 
 
@@ -1089,34 +1061,107 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       return pixels;
     }
 
-    // Pre-generate 8 upward splat sprites at scene init.
-    const splatUpPool: SplatEntry[] = Array.from({ length: 8 }, (_, i) =>
-      buildSplatEntry(genSplatUpRelPixels(), "u", i)
-    );
-    const ufoSplatPool: SplatEntry[] = Array.from({ length: 8 }, (_, i) =>
-      buildSplatEntry(genUfoSplatRelPixels(), "ufo", i)
-    );
+    // Pre-generate 8 pixel layouts at scene init.
+    const splatUpPool: RelPixel[][] = Array.from({ length: 8 }, () => genSplatUpRelPixels());
+    const ufoSplatPool: RelPixel[][] = Array.from({ length: 8 }, () => genUfoSplatRelPixels());
 
-    function paintSplatUp(pos: ReturnType<typeof k.vec2>) {
-      const P = 4;
-      const entry = splatUpPool[Math.floor(Math.random() * splatUpPool.length)];
-      if (!entry.name) return;
-      const cx = Math.round(pos.x / P) * P;
-      const cy = Math.round(pos.y / P) * P;
-      const splat = k.add([k.sprite(entry.name), k.pos(cx + entry.offsetX, cy + entry.offsetY), k.opacity(1), k.z(-1)]);
-      const timer = k.loop(1, () => {
-        splat.opacity -= 0.05;
-        if (splat.opacity <= 0) { splat.destroy(); timer.cancel(); }
+    const DRAW_SIZE = 6;
+    const SLIDE_DURATION = 0.07;
+    const EXPANSION = 0.45;
+
+    let splatId = 0;
+
+    function spawnBakedSplat(relPixels: RelPixel[], cx: number, cy: number, withFade: boolean, onReady: () => void) {
+      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+      for (const px of relPixels) {
+        const fx = px.dx * (1 + EXPANSION), fy = px.dy * (1 + EXPANSION);
+        if (fx < minX) minX = fx;
+        if (fy < minY) minY = fy;
+        if (fx + DRAW_SIZE > maxX) maxX = fx + DRAW_SIZE;
+        if (fy + DRAW_SIZE > maxY) maxY = fy + DRAW_SIZE;
+      }
+      const offscreen = document.createElement('canvas');
+      offscreen.width = Math.ceil(maxX - minX) || 1;
+      offscreen.height = Math.ceil(maxY - minY) || 1;
+      const ctx2d = offscreen.getContext('2d')!;
+      ctx2d.imageSmoothingEnabled = false;
+      for (const px of relPixels) {
+        const fx = px.dx * (1 + EXPANSION), fy = px.dy * (1 + EXPANSION);
+        ctx2d.globalAlpha = px.opacity;
+        ctx2d.fillStyle = `rgb(${px.color[0]},${px.color[1]},${px.color[2]})`;
+        ctx2d.fillRect(Math.round(fx - minX), Math.round(fy - minY), DRAW_SIZE, DRAW_SIZE);
+      }
+      const name = `sb${splatId++}`;
+      k.loadSprite(name, offscreen.toDataURL()).onLoad(() => {
+        const baked = k.add([k.sprite(name), k.pos(cx + minX, cy + minY), k.opacity(1), k.z(-1)]);
+        onReady();
+        if (withFade) {
+          const timer = k.loop(1, () => {
+            baked.opacity -= 0.05;
+            if (baked.opacity <= 0) { baked.destroy(); timer.cancel(); }
+          });
+        }
       });
     }
 
+    function paintSplatUp(pos: ReturnType<typeof k.vec2>) {
+      const relPixels = splatUpPool[Math.floor(Math.random() * splatUpPool.length)];
+      const cx = Math.round(pos.x), cy = Math.round(pos.y);
+      const state = { t: 0, baking: false };
+      const live = k.add([
+        k.pos(cx, cy),
+        k.z(-1),
+        {
+          update() {
+            state.t = Math.min(state.t + k.dt() / SLIDE_DURATION, 1);
+            if (!state.baking && state.t >= 0.7) {
+              state.baking = true;
+              spawnBakedSplat(relPixels, cx, cy, true, () => live.destroy());
+            }
+          },
+          draw() {
+            const eased = 1 - Math.pow(1 - state.t, 3);
+            for (const px of relPixels) {
+              k.drawRect({
+                pos: k.vec2(px.dx * (1 + EXPANSION * eased), px.dy * (1 + EXPANSION * eased)),
+                width: DRAW_SIZE, height: DRAW_SIZE,
+                color: k.rgb(px.color[0], px.color[1], px.color[2]),
+                opacity: px.opacity,
+              });
+            }
+          },
+        },
+      ]);
+    }
+
     function paintUfoSplat(pos: ReturnType<typeof k.vec2>) {
-      const P = 4;
-      const entry = ufoSplatPool[Math.floor(Math.random() * ufoSplatPool.length)];
-      if (!entry.name) return;
-      const cx = Math.round(pos.x / P) * P;
-      const cy = Math.round(pos.y / P) * P;
-      k.add([k.sprite(entry.name), k.pos(cx + entry.offsetX, cy + entry.offsetY), k.z(-1)]);
+      const relPixels = ufoSplatPool[Math.floor(Math.random() * ufoSplatPool.length)];
+      const cx = Math.round(pos.x), cy = Math.round(pos.y);
+      const state = { t: 0, baking: false };
+      const live = k.add([
+        k.pos(cx, cy),
+        k.z(-1),
+        {
+          update() {
+            state.t = Math.min(state.t + k.dt() / SLIDE_DURATION, 1);
+            if (!state.baking && state.t >= 0.7) {
+              state.baking = true;
+              spawnBakedSplat(relPixels, cx, cy, false, () => live.destroy());
+            }
+          },
+          draw() {
+            const eased = 1 - Math.pow(1 - state.t, 3);
+            for (const px of relPixels) {
+              k.drawRect({
+                pos: k.vec2(px.dx * (1 + EXPANSION * eased), px.dy * (1 + EXPANSION * eased)),
+                width: DRAW_SIZE, height: DRAW_SIZE,
+                color: k.rgb(px.color[0], px.color[1], px.color[2]),
+                opacity: px.opacity,
+              });
+            }
+          },
+        },
+      ]);
     }
 
     function explode(pos: ReturnType<typeof k.vec2>) {
