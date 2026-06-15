@@ -1024,7 +1024,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
           if (Math.random() > fillChance) continue;
           const patchX = Math.floor((gx + gridR) / 3);
           const patchY = Math.floor((gy + gridR) / 3);
-          const opacity = 1 - 0.5 * (dist / localR);
+          const opacity = 1 - 0.25 * (dist / localR);
           pixels.push({ dx, dy, color: patchPalette[(patchX * 7 + patchY * 13) % patchPalette.length], opacity });
         }
       }
@@ -1035,7 +1035,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
         const ddx = Math.round((Math.cos(angle) * dist) / P) * P;
         const ddy = Math.round((Math.sin(angle) * dist) / P) * P;
         const color = palette[Math.floor(Math.random() * palette.length)];
-        const dropOpacity = 0.8 - 0.3 * ((dist - OUTER_R) / (DROP_R - OUTER_R));
+        const dropOpacity = 1 - 0.25 * (dist / DROP_R);
         const dropSize = 1 + Math.floor(Math.random() * 5);
         for (let s = 0; s < dropSize; s++)
           pixels.push({ dx: ddx + (s % 2) * P, dy: ddy - Math.floor(s / 2) * P, color, opacity: dropOpacity });
@@ -1070,7 +1070,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
           if (Math.random() > fillChance) continue;
           const patchX = Math.floor((gx + gridR) / 3);
           const patchY = Math.floor((gy + gridR) / 3);
-          const opacity = 1 - 0.5 * (dist / localR);
+          const opacity = 1 - 0.25 * (dist / localR);
           pixels.push({ dx, dy, color: patchPalette[(patchX * 7 + patchY * 13) % patchPalette.length], opacity });
         }
       }
@@ -1081,7 +1081,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
         const ddx = Math.round((Math.cos(angle) * dist) / P) * P;
         const ddy = Math.round((Math.sin(angle) * dist) / P) * P;
         const dropColor = palette[Math.floor(Math.random() * palette.length)];
-        const dropOpacity = 0.8 - 0.3 * ((dist - OUTER_R) / (DROP_R - OUTER_R));
+        const dropOpacity = 1 - 0.25 * (dist / DROP_R);
         const dropSize = 1 + Math.floor(Math.random() * 5);
         for (let s = 0; s < dropSize; s++)
           pixels.push({ dx: ddx + (s % 2) * P, dy: ddy + Math.floor(s / 2) * P, color: dropColor, opacity: dropOpacity });
