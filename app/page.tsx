@@ -11,8 +11,14 @@ export default function SpacePage() {
   const [ringColor, setRingColor] = useState(COLOR_FRAME)
   const [, setScene] = useState<string>('title')
   const [loading, setLoading] = useState(true)
+  const [isTouch, setIsTouch] = useState<boolean | null>(null)
 
   useEffect(() => {
+    setIsTouch('ontouchstart' in window || navigator.maxTouchPoints > 0)
+  }, [])
+
+  useEffect(() => {
+    if (isTouch !== false) return
     const canvas = canvasRef.current
     if (!canvas) return
     let cleanup: (() => void) | undefined
@@ -21,7 +27,7 @@ export default function SpacePage() {
       setLoading(false)
     })
     return () => cleanup?.()
-  }, [])
+  }, [isTouch])
 
   useEffect(() => {
     let frame: number
@@ -58,6 +64,13 @@ export default function SpacePage() {
     window.addEventListener('level-complete', handler);
     return () => window.removeEventListener('level-complete', handler);
   }, []);
+
+  if (isTouch) return (
+    <div className="w-screen h-screen flex items-center justify-center bg-black">
+      <p className="text-white text-sm font-mono text-center px-8">
+      U Can’t Touch This.<br />Please visit on a desktop browser.</p>
+    </div>
+  )
 
   return (
     <div className="w-screen h-screen overflow-hidden flex items-center justify-center relative">
