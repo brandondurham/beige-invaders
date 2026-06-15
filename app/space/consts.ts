@@ -60,9 +60,9 @@ const themes = {
   beige: {
     HAS_SHADOW: true,
     COLOR_CANVAS_BG:        [255, 16, 14] as RGB,
-    COLOR_H1:               [172, 159, 131] as RGB,
-    COLOR_PLAYER:           [255, 240, 230] as RGB,
-    COLOR_PLAYER_ACTIVE:    [255, 255, 255] as RGB,
+    COLOR_H1:               [162, 142, 122] as RGB,
+    COLOR_PLAYER:           [254, 217, 6] as RGB,
+    COLOR_PLAYER_ACTIVE:    [19, 172, 127] as RGB,
     COLOR_PLAYER_BULLET:    [252, 250, 244] as RGB,
     COLOR_GAMEOVER_HEADING: [255, 238, 215] as RGB,
     COLOR_UI_FONT:          [175, 172, 165] as RGB,
@@ -264,12 +264,33 @@ export const LIVES_ICON_SPACING = 40;
 
 // ─── LAYOUT ───
 
+// 844 is the canvas width at which layout constants were originally tuned (scale ≈ 3.77).
+export const DESIGN_GAME_W = 844;
+
 export function getLayout(gameW: number, gameH: number) {
-  const UI_Y_TOP = GUTTER;
-  const UI_Y_BOT = gameH - UI_Y_TOP;
-  const ENEMY_COLS = Math.floor((gameW - GUTTER * 4) / ENEMY_W);
-  const START_X = Math.floor((gameW - ENEMY_COLS * ENEMY_W) / 2);
-  const START_Y = GUTTER * 3;
-  const SHIELD_ORIGIN_Y = gameH * 0.86 - SHIELD_ROWS * SHIELD_BLOCK_H - 47;
-  return { UI_Y_TOP, UI_Y_BOT, ENEMY_COLS, START_X, START_Y, SHIELD_ORIGIN_Y };
+  const r = gameW / DESIGN_GAME_W;
+  const g  = GUTTER * r;
+  const eW = ENEMY_W * r;
+  const eH = ENEMY_H * r;
+  const sBW = SHIELD_BLOCK_W * r;
+  const sBH = SHIELD_BLOCK_H * r;
+  const sCX = SHIELD_CENTER_X * r;
+  const sShadow = { x: SHIELD_SHADOW_OFFSET.x * r, y: SHIELD_SHADOW_OFFSET.y * r };
+  const UI_Y_TOP = g;
+  const UI_Y_BOT = gameH - g;
+  const ENEMY_COLS = Math.floor((gameW - g * 4) / eW);
+  const START_X = Math.floor((gameW - ENEMY_COLS * eW) / 2);
+  const START_Y = g * 3;
+  const SHIELD_ORIGIN_Y = gameH * 0.86 - SHIELD_ROWS * sBH - 47 * r;
+  return {
+    r,
+    UI_Y_TOP, UI_Y_BOT, ENEMY_COLS, START_X, START_Y, SHIELD_ORIGIN_Y,
+    ENEMY_W: eW, ENEMY_H: eH, GUTTER: g,
+    SHIELD_BLOCK_W: sBW, SHIELD_BLOCK_H: sBH, SHIELD_CENTER_X: sCX,
+    SHIELD_SHADOW_OFFSET: sShadow,
+    LIVES_ICON_SPACING: LIVES_ICON_SPACING * r,
+    PLAYER_SPEED: PLAYER_SPEED * r,
+    PLAYER_BULLET_SPEED: PLAYER_BULLET_SPEED * r,
+    UFO_SPEED: UFO_SPEED * r,
+  };
 }

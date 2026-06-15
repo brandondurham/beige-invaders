@@ -30,24 +30,16 @@ import {
   ENEMY_DECOR_MIN_X,
   ENEMY_DECOR_MIN_Y,
   ENEMY_DECOR_W,
-  ENEMY_H,
   ENEMY_ROWS,
   ENEMY_SHADOW_OFFSET,
   ENEMY_SPEED_INCREASE_PER_LEVEL,
   ENEMY_SPRITE_PIXEL_H,
   ENEMY_SPRITE_PIXEL_W,
   ENEMY_STROKE_PX,
-  ENEMY_W,
   getLayout,
-  GUTTER,
   HAS_SHADOW,
-  LIVES_ICON_SPACING,
   NUM_COLORS_IN_SPLAT,
   NUM_SHIELDS,
-  SHIELD_BLOCK_H,
-  SHIELD_BLOCK_W,
-  SHIELD_CENTER_X,
-  SHIELD_SHADOW_OFFSET,
   SHIELD_SHAPE,
   SPLAT_COLORS,
   UI_FONT_SIZE,
@@ -78,6 +70,8 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
   k.usePostEffect("crt");
 
 
+  const r = k.width() / 844; // proportional scale: 1.0 at design canvas width, scales all layout values
+
   const fgColor = () => k.color(COLOR_UI_FONT);
   const [SHADOW_R, SHADOW_G, SHADOW_B, SHADOW_A] = COLOR_SHADOW;
   const shadowColor = () => k.color(SHADOW_R, SHADOW_G, SHADOW_B);
@@ -88,7 +82,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
   // canvas font antialiasing doesn't soften the text.
   function buildCrispFont() {
     const chars = ' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~';
-    const size = 16;
+    const size = Math.round(16 * r);
     const probe = document.createElement("canvas");
     const pctx = probe.getContext("2d")!;
     pctx.font = `${size}px Kongtext`;
@@ -169,8 +163,8 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
 
   const ENEMY_DECOR_OFFSET_X = -ENEMY_DECOR_MIN_X;
   const ENEMY_DECOR_OFFSET_Y = -ENEMY_DECOR_MIN_Y;
-  const ENEMY_DECOR_ANCHOR_DX = ENEMY_DECOR_OFFSET_X + ENEMY_SPRITE_PIXEL_W / 2 - ENEMY_DECOR_W / 2;
-  const ENEMY_DECOR_ANCHOR_DY = ENEMY_DECOR_OFFSET_Y + ENEMY_SPRITE_PIXEL_H / 2 - ENEMY_DECOR_H / 2;
+  const ENEMY_DECOR_ANCHOR_DX = (ENEMY_DECOR_OFFSET_X + ENEMY_SPRITE_PIXEL_W / 2 - ENEMY_DECOR_W / 2) * r;
+  const ENEMY_DECOR_ANCHOR_DY = (ENEMY_DECOR_OFFSET_Y + ENEMY_SPRITE_PIXEL_H / 2 - ENEMY_DECOR_H / 2) * r;
   const ENEMY_STROKE_COLOR = `rgb(${COLOR_SHADOW.join(',')})`;
   const ENEMY_SHADOW_COLOR = `rgb(${COLOR_SHADOW.join(',')})`;
 
@@ -563,7 +557,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       drawBgCover();
     } }, k.fixed(), k.z(-10)]);
 
-    for (let y = 0; y < H; y += 4) {
+    for (let y = 0; y < H; y += 4 * r) {
       k.add([
         k.rect(W, 1),
         k.color(...COLOR_ACCENT),
@@ -575,27 +569,27 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     }
 
     if (HAS_SHADOW) k.add([
-      k.text("BEIGE", { size: 52, font }),
+      k.text("BEIGE", { size: 52 * r, font }),
       shadowColor(),
       shadowOpacity(),
-      k.pos(W / 2 - 2, H * 0.27 + 2),
+      k.pos(W / 2 - 2 * r, H * 0.27 + 2 * r),
       k.anchor("center"),
     ]);
     k.add([
-      k.text("BEIGE", { size: 52, font }),
+      k.text("BEIGE", { size: 52 * r, font }),
       k.color(...COLOR_H1),
       k.pos(W / 2, H * 0.27),
       k.anchor("center"),
     ]);
     if (HAS_SHADOW) k.add([
-      k.text("INVADERS", { size: 52, font }),
+      k.text("INVADERS", { size: 52 * r, font }),
       shadowColor(),
       shadowOpacity(),
-      k.pos(W / 2 - 2, H * 0.36 + 2),
+      k.pos(W / 2 - 2 * r, H * 0.36 + 2 * r),
       k.anchor("center"),
     ]);
     k.add([
-      k.text("INVADERS", { size: 52, font }),
+      k.text("INVADERS", { size: 52 * r, font }),
       k.color(...COLOR_H1),
       k.pos(W / 2, H * 0.36),
       k.anchor("center"),
@@ -611,8 +605,8 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     ];
 
     scoreTable.forEach((row, i) => {
-      const iconX = W / 2 - 90;
-      const iconY = H * 0.5 + i * 38;
+      const iconX = W / 2 - 90 * r;
+      const iconY = H * 0.5 + i * 38 * r;
       const iconScale = 0.7;
       if (row.decorSprite) {
         k.add([
@@ -624,15 +618,15 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       }
       k.add([k.sprite(row.sprite), k.pos(iconX, iconY), k.scale(iconScale), k.anchor("center")]);
       k.add([
-        k.text(row.label, { size: 14, font }),
+        k.text(row.label, { size: 14 * r, font }),
         k.color(...row.color),
-        k.pos(W / 2 - 55, H * 0.5 + i * 38),
+        k.pos(W / 2 - 55 * r, H * 0.5 + i * 38 * r),
         k.anchor("left"),
       ]);
     });
 
     const blink = k.add([
-      k.text("< PRESS SPACE TO PLAY >", { size: 14, font }),
+      k.text("< PRESS SPACE TO PLAY >", { size: 14 * r, font }),
       k.color(...COLOR_WHITE),
       k.opacity(1),
       k.pos(W / 2, H * 0.85),
@@ -666,13 +660,13 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
         return;
       }
       const W = k.width(), H = k.height();
-      const DW = 480, DH = 160;
+      const DW = 480 * r, DH = 160 * r;
       const dx = W / 2 - DW / 2, dy = H / 2 - DH / 2;
-      const BTN_W = 140, BTN_H = 40;
+      const BTN_W = 140 * r, BTN_H = 40 * r;
 
       const overlay = k.add([k.rect(W, H), k.color(...DIALOG_BG), k.opacity(0.7), k.pos(0, 0), k.fixed(), k.z(50)]);
       const box = k.add([k.rect(DW, DH), k.color(...DIALOG_BG), k.outline(2, k.rgb(...DIALOG_FG)), k.pos(dx, dy), k.fixed(), k.z(51)]);
-      k.add([k.text(DIALOG_QUESTION, { size: 14, font }), k.color(...DIALOG_FG), k.pos(W / 2, dy + 44), k.anchor("center"), k.fixed(), k.z(52)]);
+      k.add([k.text(DIALOG_QUESTION, { size: 14 * r, font }), k.color(...DIALOG_FG), k.pos(W / 2, dy + 44 * r), k.anchor("center"), k.fixed(), k.z(52)]);
 
       const startGame = (withSound: boolean) => {
         soundEnabled = withSound;
@@ -685,16 +679,16 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       };
 
       const makeBtn = (label: string, bg: [number,number,number], fg: [number,number,number], bx: number, withSound: boolean, focused = false) => {
-        const btn = k.add([k.rect(BTN_W, BTN_H), k.color(...bg), k.outline(focused ? 2 : 0, k.rgb(...COLOR_WHITE)), k.pos(bx, dy + 96), k.fixed(), k.z(52), k.area(), "dialogBtn"]);
-        k.add([k.text(label, { size: 14, font }), k.color(...fg), k.pos(bx + BTN_W / 2, dy + 96 + BTN_H / 2), k.anchor("center"), k.fixed(), k.z(53), "dialogLabel"]);
+        const btn = k.add([k.rect(BTN_W, BTN_H), k.color(...bg), k.outline(focused ? 2 : 0, k.rgb(...COLOR_WHITE)), k.pos(bx, dy + 96 * r), k.fixed(), k.z(52), k.area(), "dialogBtn"]);
+        k.add([k.text(label, { size: 14 * r, font }), k.color(...fg), k.pos(bx + BTN_W / 2, dy + 96 * r + BTN_H / 2), k.anchor("center"), k.fixed(), k.z(53), "dialogLabel"]);
         btn.onHover(() => { canvas.style.cursor = "pointer"; });
         btn.onHoverEnd(() => { canvas.style.cursor = "default"; });
         btn.onClick(() => startGame(withSound));
         return { trigger: () => startGame(withSound) };
       };
 
-      makeBtn("NO",  DIALOG_BTN_NO_BG,  DIALOG_BTN_NO_FG,  dx + 60,          false);
-      const yesBtn = makeBtn("YES", DIALOG_BTN_YES_BG, DIALOG_BTN_YES_FG, dx + DW - 60 - BTN_W, true, true);
+      makeBtn("NO",  DIALOG_BTN_NO_BG,  DIALOG_BTN_NO_FG,  dx + 60 * r,          false);
+      const yesBtn = makeBtn("YES", DIALOG_BTN_YES_BG, DIALOG_BTN_YES_FG, dx + DW - 60 * r - BTN_W, true, true);
       const enterHandler = k.onKeyPress("enter", () => yesBtn.trigger());
     };
     k.onKeyPress("space", handleTitleAction);
@@ -706,7 +700,12 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     window.dispatchEvent(new CustomEvent('scene-change', { detail: 'game' }));
     const GAME_W = k.width();
     const GAME_H = k.height();
-    const { UI_Y_TOP, UI_Y_BOT, ENEMY_COLS, START_X, START_Y, SHIELD_ORIGIN_Y } = getLayout(GAME_W, GAME_H);
+    const {
+      UI_Y_TOP, UI_Y_BOT, ENEMY_COLS, START_X, START_Y, SHIELD_ORIGIN_Y,
+      ENEMY_W, ENEMY_H, GUTTER,
+      SHIELD_BLOCK_W, SHIELD_BLOCK_H, SHIELD_CENTER_X, SHIELD_SHADOW_OFFSET,
+      LIVES_ICON_SPACING, PLAYER_SPEED, PLAYER_BULLET_SPEED, UFO_SPEED,
+    } = getLayout(GAME_W, GAME_H);
 
     let score = data.score || 0;
     let lives = data.lives !== undefined ? data.lives : 3;
@@ -766,14 +765,14 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     } }, k.fixed(), k.z(-10)]);
 
     if (HAS_SHADOW) k.add([
-      k.text("BEIGE INVADERS", { size: UI_FONT_SIZE, font }),
+      k.text("BEIGE INVADERS", { size: UI_FONT_SIZE * r, font }),
       shadowColor(),
       shadowOpacity(),
-      k.pos(GAME_W / 2 - 2, UI_Y_TOP + 2),
+      k.pos(GAME_W / 2 - 2 * r, UI_Y_TOP + 2 * r),
       k.anchor("center"),
     ]);
     k.add([
-      k.text("BEIGE INVADERS", { size: UI_FONT_SIZE, font }),
+      k.text("BEIGE INVADERS", { size: UI_FONT_SIZE * r, font }),
       k.color(COLOR_UI_FONT),
       k.pos(GAME_W / 2 - 2, UI_Y_TOP),
       k.anchor("center"),
@@ -781,8 +780,8 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
 
     // Sound toggle icon
     const soundIconObj = k.add([
-      ...(HAS_SHADOW ? [{ draw() { k.drawSprite({ sprite: "speaker", frame: soundIconObj.frame, anchor: "center", pos: k.vec2(-2, 2), color: shadowRgb(), opacity: SHADOW_A }); } }] : []),
-      k.color(...COLOR_UI_FONT),
+      ...(HAS_SHADOW ? [{ draw() { k.drawSprite({ sprite: "speaker", frame: soundIconObj.frame, anchor: "center", pos: k.vec2(-2 * r, 2 * r), color: shadowRgb(), opacity: SHADOW_A }); } }] : []),
+      k.color(...COLOR_PLAYER),
       k.sprite("speaker", { frame: soundEnabled ? 0 : 1 }),
       k.pos(GAME_W / 2, GAME_H - GUTTER),
       k.anchor("center"),
@@ -802,7 +801,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     });
 
     const scoreShadow = HAS_SHADOW ? k.add([
-      k.text(`SCORE ${score}`, { size: UI_FONT_SIZE, font }),
+      k.text(`SCORE ${score}`, { size: UI_FONT_SIZE * r, font }),
       shadowColor(),
       shadowOpacity(),
       k.pos(GUTTER / 2, UI_Y_TOP + 2),
@@ -811,7 +810,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       k.z(9),
     ]) : null;
     const scoreTxt = k.add([
-      k.text(`SCORE ${score}`, { size: UI_FONT_SIZE, font }),
+      k.text(`SCORE ${score}`, { size: UI_FONT_SIZE * r, font }),
       fgColor(),
       k.pos(GUTTER / 2, UI_Y_TOP),
       k.anchor("left"),
@@ -819,17 +818,17 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       k.z(10),
     ]);
     const hiShadow = HAS_SHADOW ? k.add([
-      k.text(`HI-SCORE ${Math.max(hiScore, score)}`, { size: UI_FONT_SIZE, font }),
+      k.text(`HI-SCORE ${Math.max(hiScore, score)}`, { size: UI_FONT_SIZE * r, font }),
       shadowColor(),
       shadowOpacity(),
-      k.pos(GAME_W - GUTTER / 2 + 2, UI_Y_TOP + 2),
+      k.pos(GAME_W - GUTTER / 2 + 2 * r, UI_Y_TOP + 2 * r),
       k.anchor("right"),
       k.fixed(),
       k.z(9),
     ]) : null;
     const hiTxt = k.add([
       k.text(`HI-SCORE ${Math.max(hiScore, score)}`, {
-        size: UI_FONT_SIZE,
+        size: UI_FONT_SIZE * r,
         font,
       }),
       fgColor(),
@@ -840,7 +839,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     ]);
 
     k.add([
-      k.text(`LEVEL ${level}`, { size: UI_FONT_SIZE, font }),
+      k.text(`LEVEL ${level}`, { size: UI_FONT_SIZE * r, font }),
       fgColor(),
       k.pos(GAME_W - GUTTER / 2, UI_Y_BOT),
       k.anchor("right"),
@@ -848,10 +847,10 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       k.z(10),
     ]);
     if (HAS_SHADOW) k.add([
-      k.text(`LEVEL ${level}`, { size: UI_FONT_SIZE, font }),
+      k.text(`LEVEL ${level}`, { size: UI_FONT_SIZE * r, font }),
       shadowColor(),
       shadowOpacity(),
-      k.pos(GAME_W - GUTTER / 2 - 2, UI_Y_BOT + 2),
+      k.pos(GAME_W - GUTTER / 2 - 2 * r, UI_Y_BOT + 2 * r),
       k.anchor("right"),
       k.fixed(),
       k.z(9),
@@ -861,10 +860,10 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       k.get("lifeIcon").forEach((o: ReturnType<typeof k.add>) => o.destroy());
       for (let i = 0; i < lives; i++) {
         k.add([
-          ...(HAS_SHADOW ? [{ draw() { k.drawText({ text: "A", font, size: 30, pos: k.vec2(-2, 2), color: shadowRgb(), opacity: SHADOW_A }); } }] : []),
+          ...(HAS_SHADOW ? [{ draw() { k.drawText({ text: "A", font, size: 30 * r, pos: k.vec2(-2 * r, 2 * r), color: shadowRgb(), opacity: SHADOW_A }); } }] : []),
           k.color(...COLOR_LIVES),
-          k.text("A", { font, size: 30 }),
-          k.pos(GUTTER / 2 + i * LIVES_ICON_SPACING, GAME_H - UI_Y_TOP - 16),
+          k.text("A", { font, size: 30 * r }),
+          k.pos(GUTTER / 2 + i * LIVES_ICON_SPACING, GAME_H - UI_Y_TOP - 16 * r),
           k.fixed(),
           k.z(10),
           "lifeIcon",
@@ -890,12 +889,12 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
               k.drawSprite({
                 sprite: cfg.decorSprite,
                 frame: this.frame ?? 0,
-                pos: k.vec2(-ENEMY_DECOR_OFFSET_X, -ENEMY_DECOR_OFFSET_Y),
+                pos: k.vec2(-ENEMY_DECOR_OFFSET_X * r, -ENEMY_DECOR_OFFSET_Y * r),
               });
             },
           },
           k.sprite(cfg.sprite),
-          k.pos(START_X + col * ENEMY_W, START_Y + row * ENEMY_H + (level - 1) * 10),
+          k.pos(START_X + col * ENEMY_W, START_Y + row * ENEMY_H + (level - 1) * 10 * r),
           k.area(),
           "enemy",
           { row, col, pts: cfg.pts, alive: true },
@@ -948,14 +947,14 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     function spawnPlayer() {
       playerObj = k.add([
         { draw() {
-          k.drawText({ text: "A", font, size: 48, anchor: "center", pos: k.vec2(-6, 6), color: shadowRgb(), opacity: SHADOW_A });
+          k.drawText({ text: "A", font, size: 48 * r, anchor: "center", pos: k.vec2(-6 * r, 6 * r), color: shadowRgb(), opacity: SHADOW_A });
           for (const [dx, dy] of [[-2,-2],[0,-2],[2,-2],[-2,0],[2,0],[-2,2],[0,2],[2,2]] as [number,number][]) {
-            k.drawText({ text: "A", font, size: 48, anchor: "center", pos: k.vec2(dx, dy), color: shadowRgb(), opacity: SHADOW_A });
+            k.drawText({ text: "A", font, size: 48 * r, anchor: "center", pos: k.vec2(dx * r, dy * r), color: shadowRgb(), opacity: SHADOW_A });
           }
         } },
         k.color(...COLOR_PLAYER),
-        k.text("A", { font, size: 48 }),
-        k.pos(GAME_W / 2, GAME_H - 124),
+        k.text("A", { font, size: 48 * r }),
+        k.pos(GAME_W / 2, GAME_H - 124 * r),
         k.anchor("center"),
         k.area(),
         "player",
@@ -970,11 +969,11 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
 
 
     function genSplatUpRelPixels(): RelPixel[] {
-      const P = 6;
+      const P = 6 * r;
       const scale = 0.4 + Math.random() * 1.5;
-      const INNER_R = Math.round(16 * scale);
-      const OUTER_R = Math.round(36 * scale);
-      const DROP_R  = Math.round(130 * scale);
+      const INNER_R = Math.round(16 * scale * r);
+      const OUTER_R = Math.round(36 * scale * r);
+      const DROP_R  = Math.round(130 * scale * r);
       const palette = [...SPLAT_COLORS].sort(() => Math.random() - 0.5).slice(0, NUM_COLORS_IN_SPLAT);
       const SLICES = 24;
       const edgeR = Array.from({ length: SLICES }, (_, i) => {
@@ -1016,11 +1015,11 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     }
 
     function genUfoSplatRelPixels(): RelPixel[] {
-      const P = 6;
+      const P = 6 * r;
       const scale = (0.6 + Math.random() * 1.2) * 1.2;
-      const INNER_R = Math.round(16 * scale);
-      const OUTER_R = Math.round(36 * scale);
-      const DROP_R  = Math.round(260 * scale);
+      const INNER_R = Math.round(16 * scale * r);
+      const OUTER_R = Math.round(36 * scale * r);
+      const DROP_R  = Math.round(260 * scale * r);
       const palette = [...SPLAT_COLORS].sort(() => Math.random() - 0.5).slice(0, NUM_COLORS_IN_SPLAT);
       const SLICES = 24;
       const edgeR = Array.from({ length: SLICES }, (_, i) => {
@@ -1065,8 +1064,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     const splatUpPool: RelPixel[][] = Array.from({ length: 8 }, () => genSplatUpRelPixels());
     const ufoSplatPool: RelPixel[][] = Array.from({ length: 8 }, () => genUfoSplatRelPixels());
 
-    const DRAW_SIZE = 6;
-    const SLIDE_DURATION = 0.07;
+    const DRAW_SIZE = 6 * r;
     const EXPANSION = 0.45;
 
     let splatId = 0;
@@ -1106,62 +1104,12 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
 
     function paintSplatUp(pos: ReturnType<typeof k.vec2>) {
       const relPixels = splatUpPool[Math.floor(Math.random() * splatUpPool.length)];
-      const cx = Math.round(pos.x), cy = Math.round(pos.y);
-      const state = { t: 0, baking: false };
-      const live = k.add([
-        k.pos(cx, cy),
-        k.z(-1),
-        {
-          update() {
-            state.t = Math.min(state.t + k.dt() / SLIDE_DURATION, 1);
-            if (!state.baking && state.t >= 0.7) {
-              state.baking = true;
-              spawnBakedSplat(relPixels, cx, cy, true, () => live.destroy());
-            }
-          },
-          draw() {
-            const eased = 1 - Math.pow(1 - state.t, 3);
-            for (const px of relPixels) {
-              k.drawRect({
-                pos: k.vec2(px.dx * (1 + EXPANSION * eased), px.dy * (1 + EXPANSION * eased)),
-                width: DRAW_SIZE, height: DRAW_SIZE,
-                color: k.rgb(px.color[0], px.color[1], px.color[2]),
-                opacity: px.opacity,
-              });
-            }
-          },
-        },
-      ]);
+      spawnBakedSplat(relPixels, Math.round(pos.x), Math.round(pos.y), true, () => {});
     }
 
     function paintUfoSplat(pos: ReturnType<typeof k.vec2>) {
       const relPixels = ufoSplatPool[Math.floor(Math.random() * ufoSplatPool.length)];
-      const cx = Math.round(pos.x), cy = Math.round(pos.y);
-      const state = { t: 0, baking: false };
-      const live = k.add([
-        k.pos(cx, cy),
-        k.z(-1),
-        {
-          update() {
-            state.t = Math.min(state.t + k.dt() / SLIDE_DURATION, 1);
-            if (!state.baking && state.t >= 0.7) {
-              state.baking = true;
-              spawnBakedSplat(relPixels, cx, cy, false, () => live.destroy());
-            }
-          },
-          draw() {
-            const eased = 1 - Math.pow(1 - state.t, 3);
-            for (const px of relPixels) {
-              k.drawRect({
-                pos: k.vec2(px.dx * (1 + EXPANSION * eased), px.dy * (1 + EXPANSION * eased)),
-                width: DRAW_SIZE, height: DRAW_SIZE,
-                color: k.rgb(px.color[0], px.color[1], px.color[2]),
-                opacity: px.opacity,
-              });
-            }
-          },
-        },
-      ]);
+      spawnBakedSplat(relPixels, Math.round(pos.x), Math.round(pos.y), false, () => {});
     }
 
     function explode(pos: ReturnType<typeof k.vec2>) {
@@ -1180,11 +1128,11 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       if (k.get("bullet").length > 5) return;
       canShoot = false;
       k.add([
-        k.rect(4, 16),
+        k.rect(4 * r, 16 * r),
         k.color(...COLOR_PLAYER_BULLET),
-        k.pos(playerObj!.pos.x - 2, playerObj!.pos.y - 36),
+        k.pos(playerObj!.pos.x - 2 * r, playerObj!.pos.y - 36 * r),
         k.area(),
-        k.move(k.UP, 900),
+        k.move(k.UP, PLAYER_BULLET_SPEED),
         k.z(6),
         "bullet",
       ]);
@@ -1200,12 +1148,12 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     k.onKeyDown("left", () => {
       if (gameOver || playerDead) return;
       const p = playerObj as unknown as { pos: { x: number } };
-      p.pos.x = Math.max(GUTTER, p.pos.x - 286 * k.dt());
+      p.pos.x = Math.max(GUTTER, p.pos.x - PLAYER_SPEED * k.dt());
     });
     k.onKeyDown("right", () => {
       if (gameOver || playerDead) return;
       const p = playerObj as unknown as { pos: { x: number } };
-      p.pos.x = Math.min(GAME_W - GUTTER, p.pos.x + 286 * k.dt());
+      p.pos.x = Math.min(GAME_W - GUTTER, p.pos.x + PLAYER_SPEED * k.dt());
     });
 
     k.onUpdate(() => {
@@ -1258,13 +1206,13 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
         let hitWall = false;
         for (const e of te) {
           e.frame = e.row % 2 === 0 ? enemyFrame : (enemyFrame + 1) % 2;
-          if (e.pos.x + enemyDir * 12 < GUTTER || e.pos.x + enemyDir * 12 > GAME_W - ENEMY_W - GUTTER) hitWall = true;
+          if (e.pos.x + enemyDir * 12 * r < GUTTER || e.pos.x + enemyDir * 12 * r > GAME_W - ENEMY_W - GUTTER) hitWall = true;
         }
         if (hitWall) {
           enemyDir *= -1;
           for (const e of te) {
-            e.pos.y += 10;
-            if (e.pos.y > GAME_H - 90) {
+            e.pos.y += 10 * r;
+            if (e.pos.y > GAME_H - 90 * r) {
               gameOver = true;
               localStorage.setItem(LS_HI_KEY, String(Math.max(hiScore, score)));
               ufoSound?.stop(); ufoSound = null;
@@ -1272,7 +1220,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
             }
           }
         } else {
-          for (const e of te) e.pos.x += enemyDir * 12;
+          for (const e of te) e.pos.x += enemyDir * 12 * r;
         }
       }
 
@@ -1285,12 +1233,12 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
           .filter(e => e.col === col)
           .reduce((a, b) => (a.pos.y > b.pos.y ? a : b));
         k.add([
-          k.rect(4, 16),
+          k.rect(4 * r, 16 * r),
           k.color(...COLOR_ENEMY_BULLET),
-          k.pos(shooter.pos.x + 22, shooter.pos.y + 32),
+          k.pos(shooter.pos.x + 22 * r, shooter.pos.y + 32 * r),
           k.anchor("center"),
           k.area(),
-          k.move(k.DOWN, 200 + level * 20),
+          k.move(k.DOWN, (200 + level * 20) * r),
           k.z(6),
           "enemyBullet",
         ]);
@@ -1301,21 +1249,21 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
         ufoTimer = 0;
         ufoInterval = k.rand(15, 25);
         const dir = Math.random() > 0.5 ? 1 : -1;
-        const startX = dir === 1 ? -40 : GAME_W + 40;
+        const startX = dir === 1 ? -40 * r : GAME_W + 40 * r;
         ufoObj = k.add([
           ...(HAS_SHADOW ? [{ draw() { k.drawSprite({ sprite: "ufo", anchor: "center", pos: k.vec2(-2, 2), color: shadowRgb(), opacity: SHADOW_A }); } }] : []),
           k.sprite("ufo"),
           k.pos(startX, UI_Y_TOP * 2),
           k.anchor("center"),
           k.area(),
-          k.move(dir === 1 ? k.RIGHT : k.LEFT, 60),
+          k.move(dir === 1 ? k.RIGHT : k.LEFT, UFO_SPEED),
           k.z(6),
           "ufo",
         ]);
         if (soundEnabled) startUfoSound();
       }
       if (ufoObj) {
-        if (ufoObj.pos.x < -60 || ufoObj.pos.x > GAME_W + 60) {
+        if (ufoObj.pos.x < -60 * r || ufoObj.pos.x > GAME_W + 60 * r) {
           ufoObj.destroy();
           ufoObj = null;
           ufoSound?.stop(); ufoSound = null;
@@ -1340,7 +1288,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       hiTxt.text = `HI-SCORE ${hiScore}`;
       if (hiShadow) hiShadow.text = hiTxt.text;
       if (soundEnabled) k.play(`explosion${Math.ceil(Math.random() * 4)}`, { volume: 0.22 });
-      paintSplatUp(k.vec2(enemy.pos.x + 18, enemy.pos.y + 20));
+      paintSplatUp(k.vec2(enemy.pos.x + 18 * r, enemy.pos.y + 20 * r));
       enemy.destroy();
       canShoot = true;
     });
@@ -1358,7 +1306,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       if (soundEnabled) k.play("fart", { volume: 0.5 });
       paintUfoSplat(k.vec2(ufo.pos.x, ufo.pos.y));
       const floatTxt = k.add([
-        k.text(`+${pts}`, { size: 14, font }),
+        k.text(`+${pts}`, { size: 14 * r, font }),
         k.color(...COLOR_UI_FONT),
         k.pos(ufo.pos.x, ufo.pos.y),
         k.anchor("center"),
@@ -1435,47 +1383,47 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     } }, k.fixed(), k.z(-10)]);
 
     if (HAS_SHADOW) k.add([
-      k.text("GAME", { size: 52, font }),
+      k.text("GAME", { size: 52 * r, font }),
       shadowColor(),
       shadowOpacity(),
-      k.pos(W / 2 - 2, H * 0.27 + 2),
+      k.pos(W / 2 - 2 * r, H * 0.27 + 2 * r),
       k.anchor("center"),
     ]);
     k.add([
-      k.text("GAME", { size: 52, font }),
+      k.text("GAME", { size: 52 * r, font }),
       k.color(...COLOR_GAMEOVER_HEADING),
       k.pos(W / 2, H * 0.27),
       k.anchor("center"),
     ]);
     if (HAS_SHADOW) k.add([
-      k.text("OVER", { size: 52, font }),
+      k.text("OVER", { size: 52 * r, font }),
       shadowColor(),
       shadowOpacity(),
-      k.pos(W / 2 - 2, H * 0.36 + 2),
+      k.pos(W / 2 - 2 * r, H * 0.36 + 2 * r),
       k.anchor("center"),
     ]);
     k.add([
-      k.text("OVER", { size: 52, font }),
+      k.text("OVER", { size: 52 * r, font }),
       k.color(...COLOR_GAMEOVER_HEADING),
       k.pos(W / 2, H * 0.36),
       k.anchor("center"),
     ]);
 
     k.add([
-      k.text(`SCORE ${score}`, { size: UI_FONT_SIZE, font }),
+      k.text(`SCORE ${score}`, { size: UI_FONT_SIZE * r, font }),
       k.color(...COLOR_WHITE),
       k.pos(W / 2, H * 0.46),
       k.anchor("center"),
     ]);
     k.add([
-      k.text(`HI-SCORE ${hiScore}`, { size: UI_FONT_SIZE, font }),
+      k.text(`HI-SCORE ${hiScore}`, { size: UI_FONT_SIZE * r, font }),
       k.color(...COLOR_HI_SCORE),
       k.pos(W / 2, H * 0.505),
       k.anchor("center"),
     ]);
 
     const blink = k.add([
-      k.text("PRESS SPACE TO RETRY", { size: 14, font }),
+      k.text("PRESS SPACE TO RETRY", { size: 14 * r, font }),
       k.color(...COLOR_ACCENT),
       k.opacity(1),
       k.pos(W / 2, H * 0.6),
@@ -1493,7 +1441,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
 
 
     k.add([
-      k.text("PRESS T FOR TITLE", { size: 14, font }),
+      k.text("PRESS T FOR TITLE", { size: 14 * r, font }),
       k.color(...COLOR_DIM),
       k.pos(W / 2, H * 0.644),
       k.anchor("center"),

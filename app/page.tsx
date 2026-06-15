@@ -99,7 +99,7 @@ export default function SpacePage() {
         />
       </div>
       <div
-        className="shadow-[0_0_140px_rgb(0_0_0/0.3)] fixed rounded-4xl -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 z-20 pointer-events-none"
+        className="shadow-[0_0_140px_rgb(0_0_0/0.5)] fixed rounded-4xl -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 z-20 pointer-events-none"
         style={{ width: "min(calc(100vw - 84px), calc((100vh - 84px) * 224 / 256))", height: "min(calc(100vh - 84px), calc((100vw - 84px) * 256 / 224))" }}
       />
       <div
