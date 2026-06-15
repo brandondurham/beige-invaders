@@ -10152,6 +10152,7 @@ __metadata:
     tailwind-merge: "npm:^3.5.0"
     tailwindcss: "npm:^4"
     tw-animate-css: "npm:^1.4.0"
+    tw-easing-gradients: "npm:^1.1.2"
     typescript: "npm:^5"
   languageName: unknown
   linkType: soft
@@ -10581,6 +10582,15 @@ __metadata:
   version: 1.4.0
   resolution: "tw-animate-css@npm:1.4.0"
   checksum: 10c0/6cfbc19ccc73883ec80ef1f9147f43e736cb01ee99c8172968b37eb81b720523d30e38b1a96aef92db3c586d864204db5510b51744ddacbbf0ad8e3c7fb56ec7
+  languageName: node
+  linkType: hard
+
+"tw-easing-gradients@npm:^1.1.2":
+  version: 1.1.2
+  resolution: "tw-easing-gradients@npm:1.1.2"
+  peerDependencies:
+    tailwindcss: ">=4.0.0"
+  checksum: 10c0/1d411f7e9065bb1b4105e0262cedd84cae0b2d6738a2280f3d0f0c74a1a9f4fa8ad04828ab846d314814f2bcc6800e7ea18afe72388ad28e41fbafa318af80e9
   languageName: node
   linkType: hard
 

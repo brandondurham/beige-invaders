@@ -1,3 +1,5 @@
+import { RGBAValue } from "kaplay";
+
 type RGB = [number, number, number];
 
 interface Theme {
@@ -16,9 +18,9 @@ interface Theme {
   COLOR_ENEMY_ROWS: RGB[];
   COLOR_ENEMY_BULLET: RGB;
   COLOR_EXPLOSION: RGB;
-  COLOR_FRAME: RGB;
+  COLOR_FRAME: RGBAValue;
   COLOR_HI_SCORE: RGB;
-  COLOR_SHADOW: RGB;
+  COLOR_SHADOW: RGBAValue;
   COLOR_SHIELD: RGB;
   COLOR_UFO: RGB;
   DIALOG_BG: RGB;
@@ -33,6 +35,18 @@ interface Theme {
   SPLAT_COLORS: RGB[];
 }
 
+const SPLAT_MEMPHIS: RGB[] = [
+  [28, 118, 194],
+  [237, 183, 18],
+  [226, 107, 28],
+  [207, 42, 42],
+  [203, 74, 102],
+  [107, 44, 156],
+  [224, 118, 92],
+  [174, 218, 226],
+  [248, 246, 242],
+];
+
 const SPLAT_VIVID: RGB[] = [
   [255, 0, 30],
   [255, 0, 185],
@@ -46,37 +60,36 @@ const SPLAT_VIVID: RGB[] = [
 ];
 
 const themes = {
-
-  bandw: {
+  beige: {
     HAS_SHADOW: true,
-    COLOR_CANVAS_BG:        [18, 16, 14] as RGB,
-    COLOR_H1:               [225, 222, 215] as RGB,
-    COLOR_PLAYER:           [252, 250, 244] as RGB,
+    COLOR_CANVAS_BG:        [255, 16, 14] as RGB,
+    COLOR_H1:               [172, 159, 131] as RGB,
+    COLOR_PLAYER:           [255, 240, 230] as RGB,
     COLOR_PLAYER_ACTIVE:    [255, 255, 255] as RGB,
     COLOR_PLAYER_BULLET:    [252, 250, 244] as RGB,
-    COLOR_GAMEOVER_HEADING: [225, 222, 215] as RGB,
+    COLOR_GAMEOVER_HEADING: [255, 238, 215] as RGB,
     COLOR_UI_FONT:          [175, 172, 165] as RGB,
     COLOR_LIVES:            [175, 172, 165] as RGB,
     COLOR_ACCENT:           [252, 250, 244] as RGB,
     COLOR_DIM:              [65, 63, 60] as RGB,
     COLOR_ENEMY:            [100, 98, 93] as RGB,
     COLOR_ENEMY_ROWS: [
-      [85, 83, 80],
-      [115, 113, 108],
-      [145, 143, 137],
-      [175, 172, 165],
-      [205, 202, 195],
+      [205, 197, 189],
+      [154, 148, 142],
+      [115, 111, 106],
+      [ 86,  83,  80],
+      [ 65,  62,  60],
     ] as RGB[],
     COLOR_ENEMY_BULLET:     [195, 192, 186] as RGB,
     COLOR_EXPLOSION:        [140, 138, 132] as RGB,
-    COLOR_FRAME:            [55, 53, 50] as RGB,
-    COLOR_HI_SCORE:         [225, 222, 215] as RGB,
-    COLOR_SHADOW:           [8, 8, 6] as RGB,
-    COLOR_SHIELD:           [75, 73, 70] as RGB,
-    COLOR_UFO:              [235, 233, 228] as RGB,
+    COLOR_FRAME:            [55, 53, 50, 0] as RGBAValue,
+    COLOR_HI_SCORE:         [255, 238, 215] as RGB,
+    COLOR_SHADOW:           [8, 8, 6, 0.7] as RGBAValue,
+    COLOR_SHIELD:           [65, 62, 59] as RGB,
+    COLOR_UFO:              [255, 245, 235] as RGB,
     DIALOG_BG:              [10, 10, 8] as RGB,
     DIALOG_FG:              [210, 208, 202] as RGB,
-    DIALOG_BTN_YES_BG:      [225, 222, 215] as RGB,
+    DIALOG_BTN_YES_BG:      [255, 238, 215] as RGB,
     DIALOG_BTN_YES_FG:      [10, 10, 8] as RGB,
     DIALOG_BTN_NO_BG:       [35, 33, 30] as RGB,
     DIALOG_BTN_NO_FG:       [175, 172, 165] as RGB,
@@ -85,50 +98,48 @@ const themes = {
     COLOR_TOUCH_BTN_TEXT:   'rgba(200,198,192,0.7)',
     SPLAT_COLORS: SPLAT_VIVID,
   },
-
-  beige: {
+  memphis: {
     HAS_SHADOW: true,
-    COLOR_CANVAS_BG:        [23, 21, 20] as RGB,
-    COLOR_H1:               [230, 217, 206] as RGB,
-    COLOR_PLAYER:           [255, 244, 232] as RGB,
-    COLOR_PLAYER_ACTIVE:    [255, 246, 234] as RGB,
-    COLOR_PLAYER_BULLET:    [255, 244, 232] as RGB,
-    COLOR_GAMEOVER_HEADING: [230, 217, 206] as RGB,
-    COLOR_UI_FONT:          [182, 169, 155] as RGB,
-    COLOR_LIVES:            [182, 169, 155] as RGB,
-    COLOR_ACCENT:           [255, 244, 232] as RGB,
-    COLOR_DIM:              [75, 60, 49] as RGB,
-    COLOR_ENEMY:            [111, 96, 80] as RGB,
+    COLOR_CANVAS_BG:        [14, 12, 10] as RGB,
+    COLOR_H1:               [248, 246, 242] as RGB,
+    COLOR_PLAYER:           [248, 246, 242] as RGB,
+    COLOR_PLAYER_ACTIVE:    [255, 255, 255] as RGB,
+    COLOR_PLAYER_BULLET:    [237, 183, 18] as RGB,
+    COLOR_GAMEOVER_HEADING: [248, 246, 242] as RGB,
+    COLOR_UI_FONT:          [174, 218, 226] as RGB,
+    COLOR_LIVES:            [237, 183, 18] as RGB,
+    COLOR_ACCENT:           [28, 118, 194] as RGB,
+    COLOR_DIM:              [55, 50, 45] as RGB,
+    COLOR_ENEMY:            [28, 118, 194] as RGB,
     COLOR_ENEMY_ROWS: [
-      [95, 80, 67],
-      [125, 111, 95],
-      [155, 141, 124],
-      [182, 169, 155],
-      [214, 200, 179],
+      [28, 118, 194],
+      [107, 44, 156],
+      [226, 107, 28],
+      [207, 42, 42],
+      [237, 183, 18],
     ] as RGB[],
-    COLOR_ENEMY_BULLET:     [205, 190, 172] as RGB,
-    COLOR_EXPLOSION:        [151, 136, 119] as RGB,
-    COLOR_FRAME:            [55, 53, 50] as RGB,    // unchanged
-    COLOR_HI_SCORE:         [230, 217, 206] as RGB,
-    COLOR_SHADOW:           [8, 8, 6] as RGB,       // unchanged
-    COLOR_SHIELD:           [85, 71, 57] as RGB,
-    COLOR_UFO:              [242, 230, 211] as RGB,
-    DIALOG_BG:              [16, 7, 7] as RGB,
-    DIALOG_FG:              [217, 203, 189] as RGB,
-    DIALOG_BTN_YES_BG:      [230, 217, 206] as RGB,
-    DIALOG_BTN_YES_FG:      [16, 7, 7] as RGB,
-    DIALOG_BTN_NO_BG:       [43, 31, 25] as RGB,
-    DIALOG_BTN_NO_FG:       [182, 169, 155] as RGB,
-    COLOR_TOUCH_BTN_BG:     'rgba(213,193,168,0.08)',
-    COLOR_TOUCH_BTN_BORDER: 'rgba(213,193,168,0.35)',
-    COLOR_TOUCH_BTN_TEXT:   'rgba(213,193,168,0.7)',
-    SPLAT_COLORS: SPLAT_VIVID,                      // unchanged
+    COLOR_ENEMY_BULLET:     [203, 74, 102] as RGB,
+    COLOR_EXPLOSION:        [226, 107, 28] as RGB,
+    COLOR_FRAME:            [28, 118, 194, 1] as RGBAValue,
+    COLOR_HI_SCORE:         [248, 246, 242] as RGB,
+    COLOR_SHADOW:           [8, 6, 4, 0.7] as RGBAValue,
+    COLOR_SHIELD:           [174, 218, 226] as RGB,
+    COLOR_UFO:              [203, 74, 102] as RGB,
+    DIALOG_BG:              [14, 12, 10] as RGB,
+    DIALOG_FG:              [220, 215, 205] as RGB,
+    DIALOG_BTN_YES_BG:      [237, 183, 18] as RGB,
+    DIALOG_BTN_YES_FG:      [14, 12, 10] as RGB,
+    DIALOG_BTN_NO_BG:       [40, 36, 32] as RGB,
+    DIALOG_BTN_NO_FG:       [160, 155, 145] as RGB,
+    COLOR_TOUCH_BTN_BG:     'rgba(28,118,194,0.12)',
+    COLOR_TOUCH_BTN_BORDER: 'rgba(28,118,194,0.45)',
+    COLOR_TOUCH_BTN_TEXT:   'rgba(174,218,226,0.8)',
+    SPLAT_COLORS: SPLAT_MEMPHIS,
   },
-
 } satisfies Record<string, Theme>;
 
 export type ThemeName = keyof typeof themes;
-export const ACTIVE_THEME: ThemeName = 'bandw';
+export const ACTIVE_THEME: ThemeName = 'beige';
 
 const t = themes[ACTIVE_THEME];
 
@@ -168,6 +179,109 @@ export const {
 
 export const NUM_COLORS_IN_SPLAT = 5;
 export const ENEMY_SPEED_INCREASE_PER_LEVEL = 0.18;
-export const NUM_SHIELDS = 4;
+export const NUM_SHIELDS = 3;
 export const UI_FONT_SIZE = 16;
 export const DIALOG_QUESTION = "Would you like to enable sound?";
+
+// ─── ENEMY / SPRITE DIMENSIONS ───
+
+export const ENEMY_ROWS = 5;
+export const ENEMY_W = 55;
+export const ENEMY_H = 56;
+export const GUTTER = 60;
+
+export const ENEMY_SPRITE_PIXEL_W = 44;
+export const ENEMY_SPRITE_PIXEL_H = 32;
+export const ENEMY_STROKE_PX = 3;
+export const ENEMY_SHADOW_OFFSET = { x: -5, y: 5 };
+export const SHIELD_SHADOW_OFFSET = { x: -8, y: 8 };
+export const ENEMY_DECOR_MIN_X = Math.min(-ENEMY_STROKE_PX, ENEMY_SHADOW_OFFSET.x);
+export const ENEMY_DECOR_MIN_Y = Math.min(-ENEMY_STROKE_PX, ENEMY_SHADOW_OFFSET.y);
+export const ENEMY_DECOR_MAX_X = ENEMY_SPRITE_PIXEL_W - 1 + Math.max(ENEMY_STROKE_PX, ENEMY_SHADOW_OFFSET.x);
+export const ENEMY_DECOR_MAX_Y = ENEMY_SPRITE_PIXEL_H - 1 + Math.max(ENEMY_STROKE_PX, ENEMY_SHADOW_OFFSET.y);
+export const ENEMY_DECOR_W = ENEMY_DECOR_MAX_X - ENEMY_DECOR_MIN_X + 1;
+export const ENEMY_DECOR_H = ENEMY_DECOR_MAX_Y - ENEMY_DECOR_MIN_Y + 1;
+
+// ─── SHIELD ───
+
+export const SHIELD_BLOCK_W = 11;
+export const SHIELD_BLOCK_H = 8;
+
+export const BUILDER_SHIELD_GRID = [
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,1,1,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,1,1,0,0,
+  0,0,1,1,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,1,1,0,0,
+  1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+  1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+  1,1,0,0,1,1,0,0,1,1,0,0,1,1,1,1,1,1,1,1,0,0,1,1,0,0,1,1,0,0,1,1,
+  1,1,0,0,1,1,0,0,1,1,0,0,1,1,1,1,1,1,1,1,0,0,1,1,0,0,1,1,0,0,1,1,
+  1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+  1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+  1,1,0,0,1,1,0,0,1,1,0,0,1,1,1,1,1,1,1,1,0,0,1,1,0,0,1,1,0,0,1,1,
+  1,1,0,0,1,1,0,0,1,1,0,0,1,1,1,0,0,1,1,1,0,0,1,1,0,0,1,1,0,0,1,1,
+  1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+  1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+  1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+];
+
+function flatGridToShieldShape(
+  flat: number[],
+  w: number,
+  h: number,
+  factor = 1,
+): [number, number][] {
+  const blocks = new Set<string>();
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      if (!flat[y * w + x]) continue;
+      blocks.add(`${Math.floor(x / factor)},${Math.floor(y / factor)}`);
+    }
+  }
+  const shape = [...blocks].map((key) => key.split(",").map(Number) as [number, number]);
+  if (!shape.length) return shape;
+  const minX = Math.min(...shape.map(([x]) => x));
+  const minY = Math.min(...shape.map(([, y]) => y));
+  return shape.map(([x, y]) => [x - minX, y - minY]);
+}
+
+export const SHIELD_SHAPE = flatGridToShieldShape(BUILDER_SHIELD_GRID, 32, 32, 2);
+export const SHIELD_ROWS = Math.max(...SHIELD_SHAPE.map(([, y]) => y)) + 1;
+export const SHIELD_COLS = Math.max(...SHIELD_SHAPE.map(([x]) => x)) + 1;
+export const SHIELD_CENTER_X = (SHIELD_COLS * SHIELD_BLOCK_W) / 2;
+
+// ─── GAMEPLAY SPEEDS ───
+
+export const PLAYER_SPEED = 286;
+export const PLAYER_BULLET_SPEED = 900;
+export const UFO_SPEED = 60;
+export const LIVES_ICON_SPACING = 40;
+
+// ─── LAYOUT ───
+
+export function getLayout(gameW: number, gameH: number) {
+  const UI_Y_TOP = GUTTER;
+  const UI_Y_BOT = gameH - UI_Y_TOP;
+  const ENEMY_COLS = Math.floor((gameW - GUTTER * 4) / ENEMY_W);
+  const START_X = Math.floor((gameW - ENEMY_COLS * ENEMY_W) / 2);
+  const START_Y = GUTTER * 3;
+  const SHIELD_ORIGIN_Y = gameH * 0.86 - SHIELD_ROWS * SHIELD_BLOCK_H - 47;
+  return { UI_Y_TOP, UI_Y_BOT, ENEMY_COLS, START_X, START_Y, SHIELD_ORIGIN_Y };
+}

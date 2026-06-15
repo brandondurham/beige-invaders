@@ -1,22 +1,15 @@
 'use client'
-import { useEffect, useRef, useState, useCallback } from 'react'
-import { COLOR_FRAME, COLOR_TOUCH_BTN_BG, COLOR_TOUCH_BTN_BORDER, COLOR_TOUCH_BTN_TEXT, SPLAT_COLORS } from './space/consts'
-import { JoystickSVG } from './JoystickSVG'
+import { useEffect, useRef, useState } from 'react'
+import { COLOR_FRAME, SPLAT_COLORS } from './space/consts'
 
 const FRAME_ANIMATION_DURATION = 100;
 const FRAME_ANIMATION_REPEATS = 3;
-const JOYSTICK_DRAG_THRESHOLD = 20;
 
 export default function SpacePage() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const grainRef = useRef<SVGFETurbulenceElement>(null)
   const [ringColor, setRingColor] = useState(COLOR_FRAME)
-  const [isTouchDevice, setIsTouchDevice] = useState(false)
   const [scene, setScene] = useState<string>('title')
-  const leftBtnRef = useRef<HTMLButtonElement>(null)
-  const rightBtnRef = useRef<HTMLButtonElement>(null)
-  const [joystickFrame, setJoystickFrame] = useState<'center' | 'left' | 'right'>('center')
-  const touchStartX = useRef<number | null>(null)
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -42,84 +35,10 @@ export default function SpacePage() {
   }, [])
 
   useEffect(() => {
-    setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0)
-  }, [])
-
-  useEffect(() => {
     const handler = (e: Event) => setScene((e as CustomEvent).detail)
     window.addEventListener('scene-change', handler)
     return () => window.removeEventListener('scene-change', handler)
   }, [])
-
-  // Non-passive touch listeners to allow preventDefault (prevents scroll/zoom while using buttons)
-  useEffect(() => {
-    if (!isTouchDevice) return
-    const prevent = (e: TouchEvent) => e.preventDefault()
-    const opts = { passive: false }
-    leftBtnRef.current?.addEventListener('touchstart', prevent, opts)
-    leftBtnRef.current?.addEventListener('touchmove', prevent, opts)
-    rightBtnRef.current?.addEventListener('touchstart', prevent, opts)
-    rightBtnRef.current?.addEventListener('touchmove', prevent, opts)
-    return () => {
-      leftBtnRef.current?.removeEventListener('touchstart', prevent)
-      leftBtnRef.current?.removeEventListener('touchmove', prevent)
-      rightBtnRef.current?.removeEventListener('touchstart', prevent)
-      rightBtnRef.current?.removeEventListener('touchmove', prevent)
-    }
-  }, [isTouchDevice])
-
-  const touchInput = useCallback(() => (window as any).__spaceTouchInput as { left: boolean; right: boolean; shoot: boolean } | undefined, [])
-
-  const handleMoveStart = useCallback((e: React.TouchEvent<HTMLButtonElement>) => {
-    const touch = e.touches[0]
-    if (!touch) return
-    touchStartX.current = touch.clientX
-    setJoystickFrame('center')
-    const input = touchInput()
-    if (!input) return
-    input.left = false
-    input.right = false
-  }, [touchInput])
-
-  const handleMoveMove = useCallback((e: React.TouchEvent<HTMLButtonElement>) => {
-    const touch = e.touches[0]
-    if (!touch || touchStartX.current === null) return
-    const delta = touch.clientX - touchStartX.current
-    const input = touchInput()
-    if (!input) return
-    if (delta < -JOYSTICK_DRAG_THRESHOLD) {
-      setJoystickFrame('left')
-      input.left = true
-      input.right = false
-    } else if (delta > JOYSTICK_DRAG_THRESHOLD) {
-      setJoystickFrame('right')
-      input.left = false
-      input.right = true
-    } else {
-      setJoystickFrame('center')
-      input.left = false
-      input.right = false
-    }
-  }, [touchInput])
-
-  const handleMoveEnd = useCallback(() => {
-    touchStartX.current = null
-    setJoystickFrame('center')
-    const input = touchInput()
-    if (!input) return
-    input.left = false
-    input.right = false
-  }, [touchInput])
-
-  const handleShootStart = useCallback(() => {
-    const input = touchInput()
-    if (input) input.shoot = true
-  }, [touchInput])
-
-  const handleShootEnd = useCallback(() => {
-    const input = touchInput()
-    if (input) input.shoot = false
-  }, [touchInput])
 
   useEffect(() => {
     const handler = () => {
@@ -140,83 +59,43 @@ export default function SpacePage() {
   }, []);
 
   return (
-    <div className="w-screen h-screen overflow-hidden bg-black">
-      <canvas
-        className="z-10"
-        ref={canvasRef}
+    <div className="w-screen h-screen overflow-hidden flex items-center justify-center relative">
+      <div
+        className="relative z-10 rounded-4xl overflow-hidden"
         style={{
-          display: "block",
-          width: isTouchDevice ? 1200 : "100%",
-          height: isTouchDevice ? 800 : "100%",
-          imageRendering: "pixelated",
+          width: "min(calc(100vw - 84px), calc((100vh - 84px) * 224 / 256))",
+          height: "min(calc(100vh - 84px), calc((100vw - 84px) * 256 / 224))",
+          margin: "42px",
+          flexShrink: 0,
+          boxShadow: `0 0 0 20px rgb(${ringColor.join(',')})`,
+        }}
+      >
+        <canvas
+          ref={canvasRef}
+          style={{ display: "block", width: "100%", height: "100%", imageRendering: "pixelated" }}
+        />
+        <div
+          className="absolute inset-0 pointer-events-none z-10"
+          style={{
+            background: [
+              "radial-gradient(ellipse 110% 55% at 38% 8%, rgba(255,255,255,0.07) 0%, transparent 100%)",
+              "radial-gradient(ellipse 55% 22% at 72% 4%, rgba(255,255,255,0.04) 0%, transparent 100%)",
+            ].join(", "),
+          }}
+        />
+      </div>
+      <div
+        className="shadow-[0_0_140px_rgb(0_0_0/0.3)] fixed rounded-4xl -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 z-20 pointer-events-none"
+        style={{ width: "min(calc(100vw - 84px), calc((100vh - 84px) * 224 / 256))", height: "min(calc(100vh - 84px), calc((100vw - 84px) * 256 / 224))" }}
+      />
+      <div
+        className="fixed rounded-4xl -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 z-21 pointer-events-none"
+        style={{
+          boxShadow: "inset 16px 16px 72px rgb(0 0 0/0.7), inset -2px -2px 0 rgb(255 255 255/0.06), inset -16px -16px 72px rgb(255 255 255/0.1)",
+          height: "min(calc(100vh - 86px), calc((100vw - 86px) * 256 / 224))",
+          width: "min(calc(100vw - 86px), calc((100vh - 86px) * 224 / 256))",
         }}
       />
-      {!isTouchDevice && (
-        <div
-          className="fixed inset-0 pointer-events-none"
-          style={{ filter: 'url(#grain)', opacity: 0.25, mixBlendMode: 'overlay', background: 'white' }}
-        />
-      )}
-      <svg style={{ position: 'absolute', width: 0, height: 0 }}>
-        <defs>
-          <filter id="grain" x="0%" y="0%" width="100%" height="100%" colorInterpolationFilters="sRGB">
-            <feTurbulence ref={grainRef} type="fractalNoise" baseFrequency="0.45" numOctaves="3" stitchTiles="stitch" />
-            <feColorMatrix type="saturate" values="0" />
-            <feComponentTransfer>
-              <feFuncR type="linear" slope="70" intercept="-2.5" />
-              <feFuncG type="linear" slope="70" intercept="-2.5" />
-              <feFuncB type="linear" slope="70" intercept="-2.5" />
-            </feComponentTransfer>
-          </filter>
-        </defs>
-      </svg>
-      <div
-        className="fixed inset-0 inset-ring-[2vmin] inset-ring-(--color-player) pointer-events-none z-30"
-        style={{ '--color-player': `rgb(${ringColor.join(',')})` } as React.CSSProperties}
-      />
-      {isTouchDevice && scene === 'game' && (
-        <>
-          <button
-            ref={leftBtnRef}
-            onTouchStart={handleMoveStart}
-            onTouchMove={handleMoveMove}
-            onTouchEnd={handleMoveEnd}
-            onTouchCancel={handleMoveEnd}
-            onContextMenu={(e) => e.preventDefault()}
-            className="fixed bottom-20 left-12 select-none z-50"
-            style={{
-              width: 81,
-              height: 97,
-              background: 'none',
-              border: 'none',
-              padding: 0,
-              touchAction: 'none',
-              userSelect: 'none',
-              WebkitUserSelect: 'none',
-            }}
-          >
-            <JoystickSVG frame={joystickFrame} />
-          </button>
-          <button
-            ref={rightBtnRef}
-            onTouchStart={handleShootStart}
-            onTouchEnd={handleShootEnd}
-            onTouchCancel={handleShootEnd}
-            onContextMenu={(e) => e.preventDefault()}
-            className="fixed bottom-20 right-12 w-18 h-18 rounded-full flex items-center justify-center select-none active:opacity-60 z-50"
-            style={{
-              background: COLOR_TOUCH_BTN_BG,
-              border: `2px solid ${COLOR_TOUCH_BTN_BORDER}`,
-              color: COLOR_TOUCH_BTN_TEXT,
-              fontSize: 28,
-              touchAction: 'none',
-              userSelect: 'none',
-              WebkitUserSelect: 'none',
-            }}
-          />
-        </>
-      )}
-      <div className="fixed inset-[2vmin] bg-cover mix-blend-color-dodge z-20 pointer-events-none opacity-70" style={{ backgroundImage: 'url(/bg-space.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
     </div>
   );
 }
