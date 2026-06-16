@@ -1056,9 +1056,9 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     function genUfoSplatRelPixels(): RelPixel[] {
       const P = 5 * r;
       const scale = 1 + Math.random() * 0.5;
-      const INNER_R = Math.round(16 * scale * r);
-      const OUTER_R = Math.round(36 * scale * r);
-      const DROP_R  = Math.round(260 * scale * r);
+      const INNER_R = Math.round(20 * scale * r);
+      const OUTER_R = Math.round(45 * scale * r);
+      const DROP_R  = Math.round(325 * scale * r);
       const palette = [...SPLAT_COLORS].sort(() => Math.random() - 0.5).slice(0, NUM_COLORS_IN_SPLAT);
       const SLICES = 24;
       const edgeR = Array.from({ length: SLICES }, (_, i) => {
