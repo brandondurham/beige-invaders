@@ -1011,7 +1011,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       const scale = (0.4 + Math.random() * 1.5) * 0.6;
       const INNER_R = Math.round(16 * scale * r);
       const OUTER_R = Math.round(36 * scale * r);
-      const DROP_R  = Math.round(130 * scale * r);
+      const DROP_R  = Math.round(220 * scale * r);
       const palette = [...SPLAT_COLORS].sort(() => Math.random() - 0.5).slice(0, NUM_COLORS_IN_SPLAT);
       const SLICES = 24;
       const edgeR = Array.from({ length: SLICES }, (_, i) => {
@@ -1037,9 +1037,10 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
           pixels.push({ dx, dy, color: patchPalette[(patchX * 7 + patchY * 13) % patchPalette.length], opacity });
         }
       }
-      const NUM_DROPS = 14 + Math.floor(Math.random() * 8);
+      const NUM_DROPS = 22 + Math.floor(Math.random() * 10);
       for (let i = 0; i < NUM_DROPS; i++) {
-        const angle = -Math.PI / 2 + (Math.random() - 0.5) * Math.PI * 0.42;
+        const t = i / NUM_DROPS;
+        const angle = -Math.PI / 2 + (Math.random() - 0.5) * Math.PI * (0.6 + t * 0.6);
         const dist = OUTER_R + Math.random() * (DROP_R - OUTER_R);
         const ddx = Math.round((Math.cos(angle) * dist) / P) * P;
         const ddy = Math.round((Math.sin(angle) * dist) / P) * P;
