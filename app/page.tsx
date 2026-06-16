@@ -75,7 +75,7 @@ export default function SpacePage() {
   return (
     <div className="w-screen h-screen overflow-hidden flex items-center justify-center relative">
       <div
-        className="relative z-10 rounded-4xl overflow-hidden"
+        className="relative z-10 rounded-[54px] overflow-hidden"
         style={{
           width: "min(calc(100vw - 84px), calc((100vh - 84px) * 224 / 256))",
           height: "min(calc(100vh - 84px), calc((100vw - 84px) * 256 / 224))",
@@ -99,13 +99,13 @@ export default function SpacePage() {
         />
       </div>
       <div
-        className="shadow-[0_0_140px_rgb(0_0_0/0.6)] fixed rounded-4xl -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 z-20 pointer-events-none"
+        className="shadow-[0_0_140px_rgb(255_255_255/0.12)] fixed rounded-[54px] -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 z-20 pointer-events-none"
         style={{ width: "min(calc(100vw - 84px), calc((100vh - 84px) * 224 / 256))", height: "min(calc(100vh - 84px), calc((100vw - 84px) * 256 / 224))" }}
       />
       <div
-        className="fixed rounded-4xl -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 z-21 pointer-events-none"
+        className="fixed rounded-[54px] -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 z-21 pointer-events-none"
         style={{
-          boxShadow: "inset 16px 16px 72px rgb(0 0 0/0.7), inset -2px -2px 0 rgb(255 255 255/0.06), inset -16px -16px 72px rgb(255 255 255/0.1)",
+          boxShadow: "inset 0 18px 54px rgb(0 0 0), inset 0 -2px 0 1px rgb(255 255 255/0.2), inset 0 -24px 48px rgb(255 255 255/0.1)",
           height: "min(calc(100vh - 86px), calc((100vw - 86px) * 256 / 224))",
           width: "min(calc(100vw - 86px), calc((100vh - 86px) * 224 / 256))",
         }}

@@ -571,29 +571,29 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     }
 
     if (HAS_SHADOW) k.add([
-      k.text("BEIGE", { size: 42 * r, font }),
+      k.text("BEIGE", { size: 60 * r, font }),
       shadowColor(),
       shadowOpacity(),
-      k.pos(W / 2 - 2 * r, H * 0.27 + 2 * r),
+      k.pos(W / 2 - 2 * r, H * 0.24 + 2 * r),
       k.anchor("center"),
     ]);
     k.add([
-      k.text("BEIGE", { size: 42 * r, font }),
+      k.text("BEIGE", { size: 60 * r, font }),
       k.color(...COLOR_H1),
-      k.pos(W / 2, H * 0.27),
+      k.pos(W / 2, H * 0.24),
       k.anchor("center"),
     ]);
     if (HAS_SHADOW) k.add([
-      k.text("INVADERS", { size: 42 * r, font }),
+      k.text("FORCE", { size: 60 * r, font }),
       shadowColor(),
       shadowOpacity(),
-      k.pos(W / 2 - 2 * r, H * 0.36 + 2 * r),
+      k.pos(W / 2 - 2 * r, H * 0.32 + 2 * r),
       k.anchor("center"),
     ]);
     k.add([
-      k.text("INVADERS", { size: 42 * r, font }),
+      k.text("FORCE", { size: 60 * r, font }),
       k.color(...COLOR_H1),
-      k.pos(W / 2, H * 0.36),
+      k.pos(W / 2, H * 0.32),
       k.anchor("center"),
     ]);
 
@@ -785,11 +785,11 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       ...(HAS_SHADOW ? [{ draw() { k.drawSprite({ sprite: "speaker", frame: soundIconObj.frame, anchor: "center", pos: k.vec2(-2 * r, 2 * r), color: shadowRgb(), opacity: SHADOW_A }); } }] : []),
       k.color([255, 255, 255] as RGB),
       k.sprite("speaker", { frame: soundEnabled ? 0 : 1 }),
-      k.pos(GAME_W / 2, GAME_H - GUTTER),
+      k.pos(GAME_W / 2, GAME_H - GUTTER - 10),
       k.anchor("center"),
       k.fixed(),
       k.z(10),
-      k.area(),
+      k.area({ offset: k.vec2(0, 12), scale: k.vec2(2, 3) }),
     ]);
     soundIconObj.onHover(() => { canvas.style.cursor = "pointer"; });
     soundIconObj.onHoverEnd(() => { canvas.style.cursor = "default"; });
@@ -806,7 +806,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       k.text(`SCORE ${score}`, { size: UI_FONT_SIZE * r, font }),
       shadowColor(),
       shadowOpacity(),
-      k.pos(GUTTER / 1.5, UI_Y_TOP + 2),
+      k.pos(GUTTER, UI_Y_TOP + 2),
       k.anchor("left"),
       k.fixed(),
       k.z(9),
@@ -814,7 +814,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     const scoreTxt = k.add([
       k.text(`SCORE ${score}`, { size: UI_FONT_SIZE * r, font }),
       fgColor(),
-      k.pos(GUTTER / 1.5, UI_Y_TOP),
+      k.pos(GUTTER, UI_Y_TOP),
       k.anchor("left"),
       k.fixed(),
       k.z(10),
@@ -865,7 +865,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
           ...(HAS_SHADOW ? [{ draw() { k.drawText({ text: "A", font, size: 24 * r, pos: k.vec2(-2 * r, 2 * r), color: shadowRgb(), opacity: SHADOW_A }); } }] : []),
           k.color(...COLOR_LIVES),
           k.text("A", { font, size: 24 * r }),
-          k.pos(GUTTER / 1.5 + i * LIVES_ICON_SPACING, GAME_H - UI_Y_TOP - 20 * r),
+          k.pos(GUTTER / 1.5 + i * LIVES_ICON_SPACING, GAME_H - UI_Y_TOP - 18 * r),
           k.fixed(),
           k.z(10),
           "lifeIcon",
@@ -949,13 +949,13 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     function spawnPlayer() {
       playerObj = k.add([
         { draw() {
-          k.drawText({ text: "A", font, size: 38 * r, anchor: "center", pos: k.vec2(-5 * r, 5 * r), color: shadowRgb(), opacity: SHADOW_A });
+          k.drawText({ text: "A", font, size: 48 * r, anchor: "center", pos: k.vec2(-5 * r, 5 * r), color: shadowRgb(), opacity: SHADOW_A });
           for (const [dx, dy] of [[-2,-2],[0,-2],[2,-2],[-2,0],[2,0],[-2,2],[0,2],[2,2]] as [number,number][]) {
-            k.drawText({ text: "A", font, size: 38 * r, anchor: "center", pos: k.vec2(dx * r, dy * r), color: shadowRgb(), opacity: SHADOW_A });
+            k.drawText({ text: "A", font, size: 48 * r, anchor: "center", pos: k.vec2(dx * r, dy * r), color: shadowRgb(), opacity: SHADOW_A });
           }
         } },
         k.color(...COLOR_PLAYER),
-        k.text("A", { font, size: 38 * r }),
+        k.text("A", { font, size: 48 * r }),
         k.pos(GAME_W / 2, GAME_H - 124 * r),
         k.anchor("center"),
         k.area(),
@@ -971,8 +971,8 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
 
 
     function genSplatUpRelPixels(): RelPixel[] {
-      const P = 6 * r;
-      const scale = (0.4 + Math.random() * 1.5) * 0.7;
+      const P = 5 * r;
+      const scale = (0.4 + Math.random() * 1.5) * 0.6;
       const INNER_R = Math.round(16 * scale * r);
       const OUTER_R = Math.round(36 * scale * r);
       const DROP_R  = Math.round(130 * scale * r);
@@ -1017,8 +1017,8 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     }
 
     function genUfoSplatRelPixels(): RelPixel[] {
-      const P = 6 * r;
-      const scale = (0.6 + Math.random() * 1.2) * 1.2;
+      const P = 5 * r;
+      const scale = 1 + Math.random() * 0.5;
       const INNER_R = Math.round(16 * scale * r);
       const OUTER_R = Math.round(36 * scale * r);
       const DROP_R  = Math.round(260 * scale * r);
@@ -1066,7 +1066,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     const splatUpPool: RelPixel[][] = Array.from({ length: 8 }, () => genSplatUpRelPixels());
     const ufoSplatPool: RelPixel[][] = Array.from({ length: 8 }, () => genUfoSplatRelPixels());
 
-    const DRAW_SIZE = 6 * r;
+    const DRAW_SIZE = 4.5 * r;
     const EXPANSION = 0.45;
 
     let splatId = 0;
