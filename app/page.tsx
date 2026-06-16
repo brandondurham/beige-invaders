@@ -53,7 +53,7 @@ export default function SpacePage() {
       let i = 0;
       const interval = setInterval(() => {
         const [r, g, b] = sequence[i];
-        setRingColor([r, g, b]);
+        setRingColor([r, g, b, 1]);
         i++;
         if (i >= sequence.length) {
           clearInterval(interval);
