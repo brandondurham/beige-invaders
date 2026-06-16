@@ -1,6 +1,6 @@
 import { RGBAValue } from "kaplay";
 
-type RGB = [number, number, number];
+export type RGB = [number, number, number];
 
 interface Theme {
   HAS_SHADOW: boolean;
@@ -61,8 +61,8 @@ const themes = {
     HAS_SHADOW: true,
     COLOR_CANVAS_BG:        [255, 16, 14] as RGB,
     COLOR_H1:               [162, 142, 122] as RGB,
-    COLOR_PLAYER:           [254, 217, 6] as RGB,
-    COLOR_PLAYER_ACTIVE:    [19, 172, 127] as RGB,
+    COLOR_PLAYER:           [46, 207, 140] as RGB,
+    COLOR_PLAYER_ACTIVE:    [255, 0, 30] as RGB,
     COLOR_PLAYER_BULLET:    [252, 250, 244] as RGB,
     COLOR_GAMEOVER_HEADING: [255, 238, 215] as RGB,
     COLOR_UI_FONT:          [175, 172, 165] as RGB,
@@ -168,7 +168,7 @@ export const {
 export const NUM_COLORS_IN_SPLAT = 5;
 export const ENEMY_SPEED_INCREASE_PER_LEVEL = 0.18;
 export const NUM_SHIELDS = 3;
-export const UI_FONT_SIZE = 16;
+export const UI_FONT_SIZE = 13;
 export const DIALOG_QUESTION = "Would you like to enable sound?";
 
 // ─── ENEMY / SPRITE DIMENSIONS ───
@@ -260,7 +260,7 @@ export const SHIELD_CENTER_X = (SHIELD_COLS * SHIELD_BLOCK_W) / 2;
 export const PLAYER_SPEED = 286;
 export const PLAYER_BULLET_SPEED = 900;
 export const UFO_SPEED = 60;
-export const LIVES_ICON_SPACING = 40;
+export const LIVES_ICON_SPACING = 30;
 
 // ─── LAYOUT ───
 
@@ -268,7 +268,7 @@ export const LIVES_ICON_SPACING = 40;
 export const DESIGN_GAME_W = 844;
 
 export function getLayout(gameW: number, gameH: number) {
-  const r = gameW / DESIGN_GAME_W;
+  const r  = gameW / DESIGN_GAME_W;
   const g  = GUTTER * r;
   const eW = ENEMY_W * r;
   const eH = ENEMY_H * r;

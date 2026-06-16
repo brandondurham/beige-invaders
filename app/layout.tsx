@@ -30,9 +30,9 @@ export default function RootLayout({
     <html suppressHydrationWarning className={cn("dark", "font-mono", jetbrainsMono.variable)} data-theme="dark" lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        style={{ backgroundImage: 'url(/space-q.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}
       >
-        <div className="bg-black fixed inset-0 opacity-20" />
+        <div className="fixed inset-0 bg-[url(/space-r.png)] [background-size:112%] bg-center bg-fixed" />
+        <div className="bg-black fixed inset-0 opacity-0" />
         <AntdRegistry>
           {children}
         </AntdRegistry>

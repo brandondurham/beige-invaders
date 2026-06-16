@@ -1,5 +1,7 @@
 import kaplay, { type GameObj } from "kaplay";
 
+import type { RGB } from './consts';
+
 // Consts
 import {
   COLOR_ACCENT,
@@ -569,27 +571,27 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     }
 
     if (HAS_SHADOW) k.add([
-      k.text("BEIGE", { size: 52 * r, font }),
+      k.text("BEIGE", { size: 42 * r, font }),
       shadowColor(),
       shadowOpacity(),
       k.pos(W / 2 - 2 * r, H * 0.27 + 2 * r),
       k.anchor("center"),
     ]);
     k.add([
-      k.text("BEIGE", { size: 52 * r, font }),
+      k.text("BEIGE", { size: 42 * r, font }),
       k.color(...COLOR_H1),
       k.pos(W / 2, H * 0.27),
       k.anchor("center"),
     ]);
     if (HAS_SHADOW) k.add([
-      k.text("INVADERS", { size: 52 * r, font }),
+      k.text("INVADERS", { size: 42 * r, font }),
       shadowColor(),
       shadowOpacity(),
       k.pos(W / 2 - 2 * r, H * 0.36 + 2 * r),
       k.anchor("center"),
     ]);
     k.add([
-      k.text("INVADERS", { size: 52 * r, font }),
+      k.text("INVADERS", { size: 42 * r, font }),
       k.color(...COLOR_H1),
       k.pos(W / 2, H * 0.36),
       k.anchor("center"),
@@ -618,7 +620,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       }
       k.add([k.sprite(row.sprite), k.pos(iconX, iconY), k.scale(iconScale), k.anchor("center")]);
       k.add([
-        k.text(row.label, { size: 14 * r, font }),
+        k.text(row.label, { size: 11 * r, font }),
         k.color(...row.color),
         k.pos(W / 2 - 55 * r, H * 0.5 + i * 38 * r),
         k.anchor("left"),
@@ -626,7 +628,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     });
 
     const blink = k.add([
-      k.text("< PRESS SPACE TO PLAY >", { size: 14 * r, font }),
+      k.text("< PRESS SPACE TO PLAY >", { size: 11 * r, font }),
       k.color(...COLOR_WHITE),
       k.opacity(1),
       k.pos(W / 2, H * 0.85),
@@ -666,7 +668,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
 
       const overlay = k.add([k.rect(W, H), k.color(...DIALOG_BG), k.opacity(0.7), k.pos(0, 0), k.fixed(), k.z(50)]);
       const box = k.add([k.rect(DW, DH), k.color(...DIALOG_BG), k.outline(2, k.rgb(...DIALOG_FG)), k.pos(dx, dy), k.fixed(), k.z(51)]);
-      k.add([k.text(DIALOG_QUESTION, { size: 14 * r, font }), k.color(...DIALOG_FG), k.pos(W / 2, dy + 44 * r), k.anchor("center"), k.fixed(), k.z(52)]);
+      k.add([k.text(DIALOG_QUESTION, { size: 11 * r, font }), k.color(...DIALOG_FG), k.pos(W / 2, dy + 44 * r), k.anchor("center"), k.fixed(), k.z(52)]);
 
       const startGame = (withSound: boolean) => {
         soundEnabled = withSound;
@@ -680,7 +682,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
 
       const makeBtn = (label: string, bg: [number,number,number], fg: [number,number,number], bx: number, withSound: boolean, focused = false) => {
         const btn = k.add([k.rect(BTN_W, BTN_H), k.color(...bg), k.outline(focused ? 2 : 0, k.rgb(...COLOR_WHITE)), k.pos(bx, dy + 96 * r), k.fixed(), k.z(52), k.area(), "dialogBtn"]);
-        k.add([k.text(label, { size: 14 * r, font }), k.color(...fg), k.pos(bx + BTN_W / 2, dy + 96 * r + BTN_H / 2), k.anchor("center"), k.fixed(), k.z(53), "dialogLabel"]);
+        k.add([k.text(label, { size: 11 * r, font }), k.color(...fg), k.pos(bx + BTN_W / 2, dy + 96 * r + BTN_H / 2), k.anchor("center"), k.fixed(), k.z(53), "dialogLabel"]);
         btn.onHover(() => { canvas.style.cursor = "pointer"; });
         btn.onHoverEnd(() => { canvas.style.cursor = "default"; });
         btn.onClick(() => startGame(withSound));
@@ -781,7 +783,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     // Sound toggle icon
     const soundIconObj = k.add([
       ...(HAS_SHADOW ? [{ draw() { k.drawSprite({ sprite: "speaker", frame: soundIconObj.frame, anchor: "center", pos: k.vec2(-2 * r, 2 * r), color: shadowRgb(), opacity: SHADOW_A }); } }] : []),
-      k.color(...COLOR_PLAYER),
+      k.color([255, 255, 255] as RGB),
       k.sprite("speaker", { frame: soundEnabled ? 0 : 1 }),
       k.pos(GAME_W / 2, GAME_H - GUTTER),
       k.anchor("center"),
@@ -804,7 +806,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       k.text(`SCORE ${score}`, { size: UI_FONT_SIZE * r, font }),
       shadowColor(),
       shadowOpacity(),
-      k.pos(GUTTER / 2, UI_Y_TOP + 2),
+      k.pos(GUTTER / 1.5, UI_Y_TOP + 2),
       k.anchor("left"),
       k.fixed(),
       k.z(9),
@@ -812,7 +814,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     const scoreTxt = k.add([
       k.text(`SCORE ${score}`, { size: UI_FONT_SIZE * r, font }),
       fgColor(),
-      k.pos(GUTTER / 2, UI_Y_TOP),
+      k.pos(GUTTER / 1.5, UI_Y_TOP),
       k.anchor("left"),
       k.fixed(),
       k.z(10),
@@ -821,7 +823,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       k.text(`HI-SCORE ${Math.max(hiScore, score)}`, { size: UI_FONT_SIZE * r, font }),
       shadowColor(),
       shadowOpacity(),
-      k.pos(GAME_W - GUTTER / 2 + 2 * r, UI_Y_TOP + 2 * r),
+      k.pos(GAME_W - GUTTER / 1.5 + 2 * r, UI_Y_TOP + 2 * r),
       k.anchor("right"),
       k.fixed(),
       k.z(9),
@@ -832,7 +834,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
         font,
       }),
       fgColor(),
-      k.pos(GAME_W - GUTTER / 2, UI_Y_TOP),
+      k.pos(GAME_W - GUTTER / 1.5, UI_Y_TOP),
       k.anchor("right"),
       k.fixed(),
       k.z(10),
@@ -860,10 +862,10 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       k.get("lifeIcon").forEach((o: ReturnType<typeof k.add>) => o.destroy());
       for (let i = 0; i < lives; i++) {
         k.add([
-          ...(HAS_SHADOW ? [{ draw() { k.drawText({ text: "A", font, size: 30 * r, pos: k.vec2(-2 * r, 2 * r), color: shadowRgb(), opacity: SHADOW_A }); } }] : []),
+          ...(HAS_SHADOW ? [{ draw() { k.drawText({ text: "A", font, size: 24 * r, pos: k.vec2(-2 * r, 2 * r), color: shadowRgb(), opacity: SHADOW_A }); } }] : []),
           k.color(...COLOR_LIVES),
-          k.text("A", { font, size: 30 * r }),
-          k.pos(GUTTER / 2 + i * LIVES_ICON_SPACING, GAME_H - UI_Y_TOP - 16 * r),
+          k.text("A", { font, size: 24 * r }),
+          k.pos(GUTTER / 1.5 + i * LIVES_ICON_SPACING, GAME_H - UI_Y_TOP - 20 * r),
           k.fixed(),
           k.z(10),
           "lifeIcon",
@@ -947,13 +949,13 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     function spawnPlayer() {
       playerObj = k.add([
         { draw() {
-          k.drawText({ text: "A", font, size: 48 * r, anchor: "center", pos: k.vec2(-6 * r, 6 * r), color: shadowRgb(), opacity: SHADOW_A });
+          k.drawText({ text: "A", font, size: 38 * r, anchor: "center", pos: k.vec2(-5 * r, 5 * r), color: shadowRgb(), opacity: SHADOW_A });
           for (const [dx, dy] of [[-2,-2],[0,-2],[2,-2],[-2,0],[2,0],[-2,2],[0,2],[2,2]] as [number,number][]) {
-            k.drawText({ text: "A", font, size: 48 * r, anchor: "center", pos: k.vec2(dx * r, dy * r), color: shadowRgb(), opacity: SHADOW_A });
+            k.drawText({ text: "A", font, size: 38 * r, anchor: "center", pos: k.vec2(dx * r, dy * r), color: shadowRgb(), opacity: SHADOW_A });
           }
         } },
         k.color(...COLOR_PLAYER),
-        k.text("A", { font, size: 48 * r }),
+        k.text("A", { font, size: 38 * r }),
         k.pos(GAME_W / 2, GAME_H - 124 * r),
         k.anchor("center"),
         k.area(),
@@ -970,7 +972,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
 
     function genSplatUpRelPixels(): RelPixel[] {
       const P = 6 * r;
-      const scale = 0.4 + Math.random() * 1.5;
+      const scale = (0.4 + Math.random() * 1.5) * 0.7;
       const INNER_R = Math.round(16 * scale * r);
       const OUTER_R = Math.round(36 * scale * r);
       const DROP_R  = Math.round(130 * scale * r);
@@ -1130,7 +1132,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       k.add([
         k.rect(4 * r, 16 * r),
         k.color(...COLOR_PLAYER_BULLET),
-        k.pos(playerObj!.pos.x - 2 * r, playerObj!.pos.y - 36 * r),
+        k.pos(playerObj!.pos.x - 2 * r, playerObj!.pos.y - 29 * r),
         k.area(),
         k.move(k.UP, PLAYER_BULLET_SPEED),
         k.z(6),
@@ -1306,7 +1308,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       if (soundEnabled) k.play("fart", { volume: 0.5 });
       paintUfoSplat(k.vec2(ufo.pos.x, ufo.pos.y));
       const floatTxt = k.add([
-        k.text(`+${pts}`, { size: 14 * r, font }),
+        k.text(`+${pts}`, { size: 11 * r, font }),
         k.color(...COLOR_UI_FONT),
         k.pos(ufo.pos.x, ufo.pos.y),
         k.anchor("center"),
@@ -1383,27 +1385,27 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     } }, k.fixed(), k.z(-10)]);
 
     if (HAS_SHADOW) k.add([
-      k.text("GAME", { size: 52 * r, font }),
+      k.text("GAME", { size: 42 * r, font }),
       shadowColor(),
       shadowOpacity(),
       k.pos(W / 2 - 2 * r, H * 0.27 + 2 * r),
       k.anchor("center"),
     ]);
     k.add([
-      k.text("GAME", { size: 52 * r, font }),
+      k.text("GAME", { size: 42 * r, font }),
       k.color(...COLOR_GAMEOVER_HEADING),
       k.pos(W / 2, H * 0.27),
       k.anchor("center"),
     ]);
     if (HAS_SHADOW) k.add([
-      k.text("OVER", { size: 52 * r, font }),
+      k.text("OVER", { size: 42 * r, font }),
       shadowColor(),
       shadowOpacity(),
       k.pos(W / 2 - 2 * r, H * 0.36 + 2 * r),
       k.anchor("center"),
     ]);
     k.add([
-      k.text("OVER", { size: 52 * r, font }),
+      k.text("OVER", { size: 42 * r, font }),
       k.color(...COLOR_GAMEOVER_HEADING),
       k.pos(W / 2, H * 0.36),
       k.anchor("center"),
@@ -1423,7 +1425,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     ]);
 
     const blink = k.add([
-      k.text("PRESS SPACE TO RETRY", { size: 14 * r, font }),
+      k.text("PRESS SPACE TO RETRY", { size: 11 * r, font }),
       k.color(...COLOR_ACCENT),
       k.opacity(1),
       k.pos(W / 2, H * 0.6),
@@ -1441,7 +1443,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
 
 
     k.add([
-      k.text("PRESS T FOR TITLE", { size: 14 * r, font }),
+      k.text("PRESS T FOR TITLE", { size: 11 * r, font }),
       k.color(...COLOR_DIM),
       k.pos(W / 2, H * 0.644),
       k.anchor("center"),
