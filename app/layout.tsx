@@ -19,20 +19,20 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://beige.andrewalfordcreative.com"),
-  title: "Beige Invaders → Andrew Alford Creative",
+  title: "BEIGE FORCE → Andrew Alford Creative",
   description: "Andrew Alford Creative",
   openGraph: {
-    title: "Beige Invaders → Andrew Alford Creative",
+    title: "BEIGE FORCE → Andrew Alford Creative",
     description: "Andrew Alford Creative",
     url: "https://beige.andrewalfordcreative.com",
-    siteName: "Beige Invaders",
+    siteName: "BEIGE FORCE",
     locale: "en_US",
     type: "website",
     images: [{ url: "/og.png", width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Beige Invaders → Andrew Alford Creative",
+    title: "BEIGE FORCE → Andrew Alford Creative",
     description: "Andrew Alford Creative",
     images: ["/og.png"],
   },
