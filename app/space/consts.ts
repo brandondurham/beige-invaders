@@ -245,7 +245,7 @@ export function setActiveTheme(name: ThemeName): void {
 export const NUM_COLORS_IN_SPLAT = 5;
 export const ENEMY_SPEED_INCREASE_PER_LEVEL = 0.18;
 export const NUM_SHIELDS = 3;
-export const UI_FONT_SIZE = 13;
+export const UI_FONT_SIZE = 14;
 export const DIALOG_QUESTION = "Would you like to enable sound?";
 
 // ─── ENEMY / SPRITE DIMENSIONS ───
@@ -346,7 +346,7 @@ export const DESIGN_GAME_W = 844;
 
 export function getLayout(gameW: number, gameH: number) {
   const r  = gameW / DESIGN_GAME_W;
-  const g  = GUTTER * r;
+  const g  = GUTTER + 12 * r;
   const eW = ENEMY_W * r;
   const eH = ENEMY_H * r;
   const sBW = SHIELD_BLOCK_W * r;

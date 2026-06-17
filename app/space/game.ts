@@ -114,51 +114,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
   buildCrispFont();
   const font = "kongtext";
 
-  function makeGradientTitleSprite(text: string, fromRgb: RGB, toRgb: RGB): string {
-    const baseSize = Math.round(16 * r);
-    const upscale = Math.round((60 * r) / baseSize);
-    const probe = document.createElement("canvas");
-    const pctx = probe.getContext("2d")!;
-    pctx.font = `${baseSize}px Kongtext`;
-    const charW = Math.round(pctx.measureText("AAAA").width / 4);
-    const smallW = charW * text.length;
-    const smallH = baseSize;
-    const small = document.createElement("canvas");
-    small.width = smallW;
-    small.height = smallH;
-    const sctx = small.getContext("2d")!;
-    sctx.imageSmoothingEnabled = false;
-    sctx.font = `${baseSize}px Kongtext`;
-    sctx.fillStyle = "white";
-    sctx.textBaseline = "top";
-    sctx.fillText(text, 0, 0);
-    const imgData = sctx.getImageData(0, 0, smallW, smallH);
-    for (let i = 0; i < imgData.data.length; i += 4) {
-      imgData.data[i] = imgData.data[i + 1] = imgData.data[i + 2] = 255;
-      imgData.data[i + 3] = imgData.data[i + 3] > 128 ? 255 : 0;
-    }
-    sctx.putImageData(imgData, 0, 0);
-    const bigW = smallW * upscale;
-    const bigH = smallH * upscale;
-    const big = document.createElement("canvas");
-    big.width = bigW;
-    big.height = bigH;
-    const bctx = big.getContext("2d")!;
-    bctx.imageSmoothingEnabled = false;
-    bctx.drawImage(small, 0, 0, bigW, bigH);
-    bctx.globalCompositeOperation = "source-in";
-    const grad = bctx.createLinearGradient(0, 0, 0, bigH);
-    grad.addColorStop(0, `rgb(${fromRgb.join(',')})`);
-    grad.addColorStop(1, `rgb(${toRgb.join(',')})`);
-    bctx.fillStyle = grad;
-    bctx.fillRect(0, 0, bigW, bigH);
-    return big.toDataURL();
-  }
-
-  const TITLE_GRAD_FROM: RGB = [196, 179, 162];
-  const TITLE_GRAD_TO: RGB = [40, 35, 30];
-  k.loadSprite("title-beige", makeGradientTitleSprite("BEIGE", TITLE_GRAD_FROM, TITLE_GRAD_TO));
-  k.loadSprite("title-force", makeGradientTitleSprite("FORCE", TITLE_GRAD_FROM, TITLE_GRAD_TO));
+  k.loadSprite("bf-logo", "/bf.png");
 
   // ─── SPRITE HELPERS ───
 
@@ -633,22 +589,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       ]);
     }
 
-    if (HAS_SHADOW) k.add([
-      k.text("BEIGE", { size: 60 * r, font }),
-      shadowColor(),
-      shadowOpacity(),
-      k.pos(W / 2 - 2 * r, H * 0.24 + 2 * r),
-      k.anchor("center"),
-    ]);
-    k.add([k.sprite("title-beige"), k.pos(W / 2, H * 0.24), k.anchor("center")]);
-    if (HAS_SHADOW) k.add([
-      k.text("FORCE", { size: 60 * r, font }),
-      shadowColor(),
-      shadowOpacity(),
-      k.pos(W / 2 - 2 * r, H * 0.32 + 2 * r),
-      k.anchor("center"),
-    ]);
-    k.add([k.sprite("title-force"), k.pos(W / 2, H * 0.32), k.anchor("center")]);
+    k.add([k.sprite("bf-logo"), k.pos(W / 2, H * 0.26), k.anchor("center"), k.scale((W * 0.37) / 1397)]);
 
     const scoreTable = [
       { sprite: `ufo_${ACTIVE_THEME}`,  label: "= ?",         color: COLOR_UFO   },
@@ -676,7 +617,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       k.add([
         k.text(row.label, { size: 12 * r, font }),
         k.color(...row.color),
-        k.pos(W / 2 - 55 * r, H * iconStartY + i * 38 * r),
+        k.pos(W / 2 - 55 * r, H * iconStartY + i * 40 * r),
         k.anchor("left"),
       ]);
     });
