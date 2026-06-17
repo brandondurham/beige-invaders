@@ -105,7 +105,7 @@ export default function SpacePage() {
       <div
         className="fixed rounded-[54px] -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 z-21 pointer-events-none"
         style={{
-          boxShadow: "inset 0 18px 54px rgb(0 0 0), inset 0 -2px 0 1px rgb(255 255 255/0.2), inset 0 -24px 48px rgb(255 255 255/0.1)",
+          boxShadow: "inset 0 12px 72px rgb(0 0 0), inset 0 -2px 0 1px rgb(255 255 255/0.4)",
           height: "min(calc(100vh - 86px), calc((100vw - 86px) * 256 / 224))",
           width: "min(calc(100vw - 86px), calc((100vh - 86px) * 224 / 256))",
         }}

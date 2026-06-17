@@ -71,7 +71,7 @@ const SPLAT_NEON: RGB[] = [
 export const themes = {
   beige: {
     HAS_SHADOW: true,
-    COLOR_CANVAS_BG:        [255, 16, 14] as RGB,
+    COLOR_CANVAS_BG:        [15, 12, 9] as RGB,
     COLOR_H1:               [162, 142, 122] as RGB,
     COLOR_PLAYER:           [6, 223, 115] as RGB,
     COLOR_PLAYER_ACTIVE:    [255, 0, 30] as RGB,

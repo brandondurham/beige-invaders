@@ -155,7 +155,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     return big.toDataURL();
   }
 
-  const TITLE_GRAD_FROM: RGB = [176, 159, 142];
+  const TITLE_GRAD_FROM: RGB = [196, 179, 162];
   const TITLE_GRAD_TO: RGB = [40, 35, 30];
   k.loadSprite("title-beige", makeGradientTitleSprite("BEIGE", TITLE_GRAD_FROM, TITLE_GRAD_TO));
   k.loadSprite("title-force", makeGradientTitleSprite("FORCE", TITLE_GRAD_FROM, TITLE_GRAD_TO));
@@ -610,10 +610,9 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     const { width: iw, height: ih } = spr.data.tex;
     const s = Math.max(k.width() / iw, k.height() / ih);
     const w = iw * s, h = ih * s;
-    k.drawRect({ width: k.width(), height: k.height(), color: k.rgb(0, 0, 0) });
+    k.drawRect({ width: k.width(), height: k.height(), color: k.rgb(...COLOR_CANVAS_BG) });
     k.drawSprite({ sprite: "bg", pos: k.vec2((k.width() - w) / 2, (k.height() - h) / 2), width: w, height: h, opacity: 0.16 });
   }
-
 
   k.scene("title", () => {
     window.dispatchEvent(new CustomEvent('scene-change', { detail: 'title' }));
@@ -661,8 +660,9 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     ];
 
     scoreTable.forEach((row, i) => {
+      const iconStartY = 0.45;
       const iconX = W / 2 - 90 * r;
-      const iconY = H * 0.5 + i * 38 * r;
+      const iconY = H * iconStartY + i * 40 * r;
       const iconScale = 0.7;
       if (row.decorSprite) {
         k.add([
@@ -674,18 +674,18 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       }
       k.add([k.sprite(row.sprite), k.pos(iconX, iconY), k.scale(iconScale), k.anchor("center")]);
       k.add([
-        k.text(row.label, { size: 11 * r, font }),
+        k.text(row.label, { size: 12 * r, font }),
         k.color(...row.color),
-        k.pos(W / 2 - 55 * r, H * 0.5 + i * 38 * r),
+        k.pos(W / 2 - 55 * r, H * iconStartY + i * 38 * r),
         k.anchor("left"),
       ]);
     });
 
     const blink = k.add([
-      k.text("< PRESS SPACE TO PLAY >", { size: 11 * r, font }),
+      k.text("< PRESS SPACE TO PLAY >", { size: 12 * r, font }),
       k.color(...COLOR_WHITE),
       k.opacity(1),
-      k.pos(W / 2, H * 0.85),
+      k.pos(W / 2, H * 0.77),
       k.anchor("center"),
     ]);
 
@@ -877,7 +877,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       k.text(`HI-SCORE ${Math.max(hiScore, score)}`, { size: UI_FONT_SIZE * r, font }),
       shadowColor(),
       shadowOpacity(),
-      k.pos(GAME_W - GUTTER / 1.5 + 2 * r, UI_Y_TOP + 2 * r),
+      k.pos(GAME_W - GUTTER + 2 * r, UI_Y_TOP + 2 * r),
       k.anchor("right"),
       k.fixed(),
       k.z(9),
@@ -888,7 +888,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
         font,
       }),
       fgColor(),
-      k.pos(GAME_W - GUTTER / 1.5, UI_Y_TOP),
+      k.pos(GAME_W - GUTTER, UI_Y_TOP),
       k.anchor("right"),
       k.fixed(),
       k.z(10),
@@ -897,7 +897,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     k.add([
       k.text(`LEVEL ${level}`, { size: UI_FONT_SIZE * r, font }),
       fgColor(),
-      k.pos(GAME_W - GUTTER / 2, UI_Y_BOT),
+      k.pos(GAME_W - GUTTER, UI_Y_BOT),
       k.anchor("right"),
       k.fixed(),
       k.z(10),
@@ -919,7 +919,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
           ...(HAS_SHADOW ? [{ draw() { k.drawText({ text: "A", font, size: 24 * r, pos: k.vec2(-2 * r, 2 * r), color: shadowRgb(), opacity: SHADOW_A }); } }] : []),
           k.color(...COLOR_LIVES),
           k.text("A", { font, size: 24 * r }),
-          k.pos(GUTTER / 1.5 + i * LIVES_ICON_SPACING, GAME_H - UI_Y_TOP - 18 * r),
+          k.pos(GUTTER + i * LIVES_ICON_SPACING, GAME_H - UI_Y_TOP - 18 * r),
           k.fixed(),
           k.z(10),
           "lifeIcon",
