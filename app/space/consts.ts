@@ -73,7 +73,7 @@ export const themes = {
     HAS_SHADOW: true,
     COLOR_CANVAS_BG:        [15, 12, 9] as RGB,
     COLOR_H1:               [162, 142, 122] as RGB,
-    COLOR_PLAYER:           [6, 223, 115] as RGB,
+    COLOR_PLAYER:           [255, 201, 82] as RGB,
     COLOR_PLAYER_ACTIVE:    [255, 0, 30] as RGB,
     COLOR_PLAYER_BULLET:    [252, 250, 244] as RGB,
     COLOR_GAMEOVER_HEADING: [255, 238, 215] as RGB,

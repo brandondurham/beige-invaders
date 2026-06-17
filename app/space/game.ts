@@ -13,7 +13,6 @@ import {
   COLOR_ENEMY_ROWS,
   COLOR_ENEMY_BULLET,
   COLOR_GAMEOVER_HEADING,
-
   COLOR_HI_SCORE,
   COLOR_LIVES,
   COLOR_PLAYER,
@@ -50,7 +49,7 @@ import {
   UI_FONT_SIZE,
 } from './consts'
 
-export function initGame(canvas: HTMLCanvasElement): () => void {
+export function initGame(canvas: HTMLCanvasElement, opts: { enableCRT?: boolean } = {}): () => void {
   const GUTTER_PX = 42;
   const scale = Math.min((window.innerWidth - GUTTER_PX * 2) / 224, (window.innerHeight - GUTTER_PX * 2) / 256);
   const k = kaplay({
@@ -73,8 +72,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       return texture2D(tex, d);
     }
   `);
-  k.usePostEffect("crt");
-
+  if (opts.enableCRT !== false) k.usePostEffect("crt");
 
   const r = k.width() / 844; // proportional scale: 1.0 at design canvas width, scales all layout values
 

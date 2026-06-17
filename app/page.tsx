@@ -7,7 +7,6 @@ const FRAME_ANIMATION_REPEATS = 3;
 
 export default function SpacePage() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const grainRef = useRef<SVGFETurbulenceElement>(null)
   const [ringColor, setRingColor] = useState(COLOR_FRAME)
   const [, setScene] = useState<string>('title')
   const [loading, setLoading] = useState(true)
@@ -22,24 +21,21 @@ export default function SpacePage() {
     const canvas = canvasRef.current
     if (!canvas) return
     let cleanup: (() => void) | undefined
-    Promise.all([import('./space/game'), document.fonts.load('16px Kongtext')]).then(([{ initGame }]) => {
-      cleanup = initGame(canvas)
+    const measureFps = () => new Promise<number>(resolve => {
+      const FRAMES = 20
+      let count = 0
+      const start = performance.now()
+      const tick = () => ++count >= FRAMES
+        ? resolve(FRAMES / (performance.now() - start) * 1000)
+        : requestAnimationFrame(tick)
+      requestAnimationFrame(tick)
+    })
+    Promise.all([import('./space/game'), document.fonts.load('16px Kongtext'), measureFps()]).then(([{ initGame }, , fps]) => {
+      cleanup = initGame(canvas, { enableCRT: fps >= 50 })
       setLoading(false)
     })
     return () => cleanup?.()
   }, [isTouch])
-
-  useEffect(() => {
-    let frame: number
-    let seed = 0
-    const tick = () => {
-      if (seed % 3 === 0) grainRef.current?.setAttribute('seed', String(seed / 3 | 0))
-      seed = (seed + 1) % 600
-      frame = requestAnimationFrame(tick)
-    }
-    frame = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(frame)
-  }, [])
 
   useEffect(() => {
     const handler = (e: Event) => setScene((e as CustomEvent).detail)
