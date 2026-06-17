@@ -4,6 +4,9 @@ import type { RGB } from './consts';
 
 // Consts
 import {
+  themes,
+  ACTIVE_THEME,
+  setActiveTheme,
   COLOR_ACCENT,
   COLOR_CANVAS_BG,
   COLOR_DIM,
@@ -268,9 +271,9 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
   ].map((v) => (v ? 'rgb(255,255,255)' : null));
   k.loadSprite("player", makeSpriteDataURL(playerPixels2, 22, 15, 3));
 
-  // ─── LETTER SPRITES (B-E-I-G-E) ───
+  // ─── ENEMY SPRITES (loaded for each theme) ───
 
-  const row1Pixels = [
+  const row1Data = [
     0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,
@@ -303,12 +306,9 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,
-  ].map(v => v ? `rgb(${COLOR_ENEMY_ROWS[0].join(',')})` : null);
-  const row1Frames = [row1Pixels, flipH(row1Pixels, ENEMY_SPRITE_PIXEL_W)];
-  k.loadSprite("row1Decor", makeSpritesheetDataURL(row1Frames.map(makeEnemyDecorFrame), ENEMY_DECOR_W, ENEMY_DECOR_H, 1), { sliceX: 2 });
-  k.loadSprite("row1", makeSpritesheetDataURL(row1Frames, ENEMY_SPRITE_PIXEL_W, ENEMY_SPRITE_PIXEL_H, 1), { sliceX: 2 });
+  ];
 
-  const row2Pixels = [
+  const row2Data = [
     0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,
     0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,
     0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,
@@ -341,12 +341,9 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,
     0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,
     0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,
-  ].map(v => v ? `rgb(${COLOR_ENEMY_ROWS[1].join(',')})` : null);
-  const row2Frames = [row2Pixels, flipH(row2Pixels, ENEMY_SPRITE_PIXEL_W)];
-  k.loadSprite("row2Decor", makeSpritesheetDataURL(row2Frames.map(makeEnemyDecorFrame), ENEMY_DECOR_W, ENEMY_DECOR_H, 1), { sliceX: 2 });
-  k.loadSprite("row2", makeSpritesheetDataURL(row2Frames, ENEMY_SPRITE_PIXEL_W, ENEMY_SPRITE_PIXEL_H, 1), { sliceX: 2 });
+  ];
 
-  const row3Pixels = [
+  const row3Data = [
     0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,
@@ -379,12 +376,9 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,
-  ].map(v => v ? `rgb(${COLOR_ENEMY_ROWS[2].join(',')})` : null);
-  const row3Frames = [row3Pixels, flipH(row3Pixels, ENEMY_SPRITE_PIXEL_W)];
-  k.loadSprite("row3Decor", makeSpritesheetDataURL(row3Frames.map(makeEnemyDecorFrame), ENEMY_DECOR_W, ENEMY_DECOR_H, 1), { sliceX: 2 });
-  k.loadSprite("row3", makeSpritesheetDataURL(row3Frames, ENEMY_SPRITE_PIXEL_W, ENEMY_SPRITE_PIXEL_H, 1), { sliceX: 2 });
+  ];
 
-  const row4Pixels = [
+  const row4Data = [
     0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,
@@ -417,12 +411,9 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,
-  ].map(v => v ? `rgb(${COLOR_ENEMY_ROWS[3].join(',')})` : null);
-  const row4Frames = [row4Pixels, flipH(row4Pixels, ENEMY_SPRITE_PIXEL_W)];
-  k.loadSprite("row4Decor", makeSpritesheetDataURL(row4Frames.map(makeEnemyDecorFrame), ENEMY_DECOR_W, ENEMY_DECOR_H, 1), { sliceX: 2 });
-  k.loadSprite("row4", makeSpritesheetDataURL(row4Frames, ENEMY_SPRITE_PIXEL_W, ENEMY_SPRITE_PIXEL_H, 1), { sliceX: 2 });
+  ];
 
-  const row5Pixels = [
+  const row5Data = [
     0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,
     0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,
     0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,
@@ -455,19 +446,46 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,
     0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,
     0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,
-  ].map(v => v ? `rgb(${COLOR_ENEMY_ROWS[4].join(',')})` : null);
-  const row5Frames = [row5Pixels, flipH(row5Pixels, ENEMY_SPRITE_PIXEL_W)];
-  k.loadSprite("row5Decor", makeSpritesheetDataURL(row5Frames.map(makeEnemyDecorFrame), ENEMY_DECOR_W, ENEMY_DECOR_H, 1), { sliceX: 2 });
-  k.loadSprite("row5", makeSpritesheetDataURL(row5Frames, ENEMY_SPRITE_PIXEL_W, ENEMY_SPRITE_PIXEL_H, 1), { sliceX: 2 });
+  ];
 
-  const ufoPixels = [
+  const ufoData = [
     0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1,
     1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1,
     1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
     1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1,
     0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
-  ].map((v) => (v ? `rgb(${COLOR_UFO.join(',')})` : null));
-  k.loadSprite("ufo", makeSpriteDataURL(ufoPixels, 16, 7, 4));
+  ];
+
+  for (const [tName, t] of Object.entries(themes)) {
+    const px1 = row1Data.map(v => v ? `rgb(${t.COLOR_ENEMY_ROWS[0].join(',')})` : null);
+    const fr1 = [px1, flipH(px1, ENEMY_SPRITE_PIXEL_W)];
+    k.loadSprite(`row1Decor_${tName}`, makeSpritesheetDataURL(fr1.map(makeEnemyDecorFrame), ENEMY_DECOR_W, ENEMY_DECOR_H, 1), { sliceX: 2 });
+    k.loadSprite(`row1_${tName}`, makeSpritesheetDataURL(fr1, ENEMY_SPRITE_PIXEL_W, ENEMY_SPRITE_PIXEL_H, 1), { sliceX: 2 });
+
+    const px2 = row2Data.map(v => v ? `rgb(${t.COLOR_ENEMY_ROWS[1].join(',')})` : null);
+    const fr2 = [px2, flipH(px2, ENEMY_SPRITE_PIXEL_W)];
+    k.loadSprite(`row2Decor_${tName}`, makeSpritesheetDataURL(fr2.map(makeEnemyDecorFrame), ENEMY_DECOR_W, ENEMY_DECOR_H, 1), { sliceX: 2 });
+    k.loadSprite(`row2_${tName}`, makeSpritesheetDataURL(fr2, ENEMY_SPRITE_PIXEL_W, ENEMY_SPRITE_PIXEL_H, 1), { sliceX: 2 });
+
+    const px3 = row3Data.map(v => v ? `rgb(${t.COLOR_ENEMY_ROWS[2].join(',')})` : null);
+    const fr3 = [px3, flipH(px3, ENEMY_SPRITE_PIXEL_W)];
+    k.loadSprite(`row3Decor_${tName}`, makeSpritesheetDataURL(fr3.map(makeEnemyDecorFrame), ENEMY_DECOR_W, ENEMY_DECOR_H, 1), { sliceX: 2 });
+    k.loadSprite(`row3_${tName}`, makeSpritesheetDataURL(fr3, ENEMY_SPRITE_PIXEL_W, ENEMY_SPRITE_PIXEL_H, 1), { sliceX: 2 });
+
+    const px4 = row4Data.map(v => v ? `rgb(${t.COLOR_ENEMY_ROWS[3].join(',')})` : null);
+    const fr4 = [px4, flipH(px4, ENEMY_SPRITE_PIXEL_W)];
+    k.loadSprite(`row4Decor_${tName}`, makeSpritesheetDataURL(fr4.map(makeEnemyDecorFrame), ENEMY_DECOR_W, ENEMY_DECOR_H, 1), { sliceX: 2 });
+    k.loadSprite(`row4_${tName}`, makeSpritesheetDataURL(fr4, ENEMY_SPRITE_PIXEL_W, ENEMY_SPRITE_PIXEL_H, 1), { sliceX: 2 });
+
+    const px5 = row5Data.map(v => v ? `rgb(${t.COLOR_ENEMY_ROWS[4].join(',')})` : null);
+    const fr5 = [px5, flipH(px5, ENEMY_SPRITE_PIXEL_W)];
+    k.loadSprite(`row5Decor_${tName}`, makeSpritesheetDataURL(fr5.map(makeEnemyDecorFrame), ENEMY_DECOR_W, ENEMY_DECOR_H, 1), { sliceX: 2 });
+    k.loadSprite(`row5_${tName}`, makeSpritesheetDataURL(fr5, ENEMY_SPRITE_PIXEL_W, ENEMY_SPRITE_PIXEL_H, 1), { sliceX: 2 });
+
+    const pxUfo = ufoData.map(v => v ? `rgb(${t.COLOR_UFO.join(',')})` : null);
+    k.loadSprite(`ufo_${tName}`, makeSpriteDataURL(pxUfo, 16, 7, 4));
+  }
+
   for (let i = 1; i <= 6; i++) k.loadSound(`shoot${i}`, `/game/audio/custom/eep-${i}.mp3`);
   k.loadSound("pop", "/game/audio/custom/pop.mp3");
   k.loadSound("fart", "/game/audio/custom/fart.mp3");
@@ -634,12 +652,12 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     k.add([k.sprite("title-force"), k.pos(W / 2, H * 0.32), k.anchor("center")]);
 
     const scoreTable = [
-      { sprite: "ufo",  label: "= ?",         color: COLOR_UFO   },
-      { sprite: "row1", decorSprite: "row1Decor", label: "= 50 POINTS",  color: COLOR_ENEMY_ROWS[0] },
-      { sprite: "row2", decorSprite: "row2Decor", label: "= 35 POINTS",  color: COLOR_ENEMY_ROWS[1] },
-      { sprite: "row3", decorSprite: "row3Decor", label: "= 25 POINTS",  color: COLOR_ENEMY_ROWS[2] },
-      { sprite: "row4", decorSprite: "row4Decor", label: "= 20 POINTS",  color: COLOR_ENEMY_ROWS[3] },
-      { sprite: "row5", decorSprite: "row5Decor", label: "= 10 POINTS",  color: COLOR_ENEMY_ROWS[4] },
+      { sprite: `ufo_${ACTIVE_THEME}`,  label: "= ?",         color: COLOR_UFO   },
+      { sprite: `row1_${ACTIVE_THEME}`, decorSprite: `row1Decor_${ACTIVE_THEME}`, label: "= 50 POINTS",  color: COLOR_ENEMY_ROWS[0] },
+      { sprite: `row2_${ACTIVE_THEME}`, decorSprite: `row2Decor_${ACTIVE_THEME}`, label: "= 35 POINTS",  color: COLOR_ENEMY_ROWS[1] },
+      { sprite: `row3_${ACTIVE_THEME}`, decorSprite: `row3Decor_${ACTIVE_THEME}`, label: "= 25 POINTS",  color: COLOR_ENEMY_ROWS[2] },
+      { sprite: `row4_${ACTIVE_THEME}`, decorSprite: `row4Decor_${ACTIVE_THEME}`, label: "= 20 POINTS",  color: COLOR_ENEMY_ROWS[3] },
+      { sprite: `row5_${ACTIVE_THEME}`, decorSprite: `row5Decor_${ACTIVE_THEME}`, label: "= 10 POINTS",  color: COLOR_ENEMY_ROWS[4] },
     ];
 
     scoreTable.forEach((row, i) => {
@@ -911,11 +929,11 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     renderLives();
 
     const rowConfig = [
-      { sprite: "row1", decorSprite: "row1Decor", pts: 50 },
-      { sprite: "row2", decorSprite: "row2Decor", pts: 35 },
-      { sprite: "row3", decorSprite: "row3Decor", pts: 25 },
-      { sprite: "row4", decorSprite: "row4Decor", pts: 20 },
-      { sprite: "row5", decorSprite: "row5Decor", pts: 10 },
+      { sprite: `row1_${ACTIVE_THEME}`, decorSprite: `row1Decor_${ACTIVE_THEME}`, pts: 50 },
+      { sprite: `row2_${ACTIVE_THEME}`, decorSprite: `row2Decor_${ACTIVE_THEME}`, pts: 35 },
+      { sprite: `row3_${ACTIVE_THEME}`, decorSprite: `row3Decor_${ACTIVE_THEME}`, pts: 25 },
+      { sprite: `row4_${ACTIVE_THEME}`, decorSprite: `row4Decor_${ACTIVE_THEME}`, pts: 20 },
+      { sprite: `row5_${ACTIVE_THEME}`, decorSprite: `row5Decor_${ACTIVE_THEME}`, pts: 10 },
     ];
 
     for (let row = 0; row < ENEMY_ROWS; row++) {
@@ -1230,6 +1248,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
           }, 3000);
         }
         window.dispatchEvent(new CustomEvent('level-complete'));
+        setActiveTheme(level + 1 >= 4 ? 'neoon' : 'beige');
         k.go("game", { score, lives, level: level + 1, hiScore: Math.max(hiScore, score) });
         return;
       }
@@ -1290,8 +1309,8 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
         const dir = Math.random() > 0.5 ? 1 : -1;
         const startX = dir === 1 ? -40 * r : GAME_W + 40 * r;
         ufoObj = k.add([
-          ...(HAS_SHADOW ? [{ draw() { k.drawSprite({ sprite: "ufo", anchor: "center", pos: k.vec2(-2, 2), color: shadowRgb(), opacity: SHADOW_A }); } }] : []),
-          k.sprite("ufo"),
+          ...(HAS_SHADOW ? [{ draw() { k.drawSprite({ sprite: `ufo_${ACTIVE_THEME}`, anchor: "center", pos: k.vec2(-2, 2), color: shadowRgb(), opacity: SHADOW_A }); } }] : []),
+          k.sprite(`ufo_${ACTIVE_THEME}`),
           k.pos(startX, UI_Y_TOP * 2),
           k.anchor("center"),
           k.area(),

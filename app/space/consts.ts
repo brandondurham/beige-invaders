@@ -56,7 +56,19 @@ const SPLAT_VIVID: RGB[] = [
   [111, 0, 159],
 ];
 
-const themes = {
+const SPLAT_NEON: RGB[] = [
+  [255, 0, 128],
+  [0, 220, 255],
+  [255, 220, 0],
+  [180, 0, 255],
+  [30, 255, 100],
+  [255, 60, 200],
+  [0, 255, 180],
+  [255, 100, 0],
+  [220, 25, 140],
+];
+
+export const themes = {
   beige: {
     HAS_SHADOW: true,
     COLOR_CANVAS_BG:        [255, 16, 14] as RGB,
@@ -127,43 +139,108 @@ const themes = {
     DIALOG_BTN_NO_FG:       [160, 155, 145] as RGB,
     SPLAT_COLORS: SPLAT_MEMPHIS,
   },
+  neoon: {
+    HAS_SHADOW: true,
+    COLOR_CANVAS_BG:        [28, 20, 130] as RGB,
+    COLOR_H1:               [255, 30, 160] as RGB,
+    COLOR_PLAYER:           [0, 240, 220] as RGB,
+    COLOR_PLAYER_ACTIVE:    [255, 0, 128] as RGB,
+    COLOR_PLAYER_BULLET:    [0, 255, 200] as RGB,
+    COLOR_GAMEOVER_HEADING: [255, 220, 0] as RGB,
+    COLOR_UI_FONT:          [0, 220, 255] as RGB,
+    COLOR_LIVES:            [255, 220, 0] as RGB,
+    COLOR_ACCENT:           [255, 30, 160] as RGB,
+    COLOR_DIM:              [55, 40, 140] as RGB,
+    COLOR_ENEMY:            [220, 25, 140] as RGB,
+    COLOR_ENEMY_ROWS: [
+      [0, 220, 255],
+      [30, 255, 100],
+      [255, 30, 160],
+      [255, 220, 0],
+      [255, 100, 0],
+    ] as RGB[],
+    COLOR_ENEMY_BULLET:     [30, 255, 100] as RGB,
+    COLOR_EXPLOSION:        [255, 80, 0] as RGB,
+    COLOR_FRAME:            [0, 220, 255, 1] as RGBAValue,
+    COLOR_HI_SCORE:         [255, 220, 0] as RGB,
+    COLOR_SHADOW:           [10, 5, 60, 0.7] as RGBAValue,
+    COLOR_SHIELD:           [0, 200, 210] as RGB,
+    COLOR_UFO:              [255, 220, 0] as RGB,
+    DIALOG_BG:              [18, 12, 80] as RGB,
+    DIALOG_FG:              [0, 220, 255] as RGB,
+    DIALOG_BTN_YES_BG:      [255, 30, 160] as RGB,
+    DIALOG_BTN_YES_FG:      [255, 255, 255] as RGB,
+    DIALOG_BTN_NO_BG:       [45, 35, 130] as RGB,
+    DIALOG_BTN_NO_FG:       [0, 180, 210] as RGB,
+    SPLAT_COLORS: SPLAT_NEON,
+  },
 } satisfies Record<string, Theme>;
 
 export type ThemeName = keyof typeof themes;
-export const ACTIVE_THEME: ThemeName = 'beige';
 
-const t = themes[ACTIVE_THEME];
+let _t = themes.beige;
+export let ACTIVE_THEME: ThemeName = 'beige';
 
 export const COLOR_WHITE: RGB = [255, 255, 255];
-export const {
-  HAS_SHADOW,
-  COLOR_CANVAS_BG,
-  COLOR_H1,
-  COLOR_PLAYER,
-  COLOR_PLAYER_ACTIVE,
-  COLOR_PLAYER_BULLET,
-  COLOR_GAMEOVER_HEADING,
-  COLOR_UI_FONT,
-  COLOR_LIVES,
-  COLOR_ACCENT,
-  COLOR_DIM,
-  COLOR_ENEMY,
-  COLOR_ENEMY_ROWS,
-  COLOR_ENEMY_BULLET,
-  COLOR_EXPLOSION,
-  COLOR_FRAME,
-  COLOR_HI_SCORE,
-  COLOR_SHADOW,
-  COLOR_SHIELD,
-  COLOR_UFO,
-  DIALOG_BG,
-  DIALOG_FG,
-  DIALOG_BTN_YES_BG,
-  DIALOG_BTN_YES_FG,
-  DIALOG_BTN_NO_BG,
-  DIALOG_BTN_NO_FG,
-  SPLAT_COLORS,
-} = t;
+export let HAS_SHADOW:            boolean    = _t.HAS_SHADOW;
+export let COLOR_CANVAS_BG:       RGB        = _t.COLOR_CANVAS_BG;
+export let COLOR_H1:              RGB        = _t.COLOR_H1;
+export let COLOR_PLAYER:          RGB        = _t.COLOR_PLAYER;
+export let COLOR_PLAYER_ACTIVE:   RGB        = _t.COLOR_PLAYER_ACTIVE;
+export let COLOR_PLAYER_BULLET:   RGB        = _t.COLOR_PLAYER_BULLET;
+export let COLOR_GAMEOVER_HEADING:RGB        = _t.COLOR_GAMEOVER_HEADING;
+export let COLOR_UI_FONT:         RGB        = _t.COLOR_UI_FONT;
+export let COLOR_LIVES:           RGB        = _t.COLOR_LIVES;
+export let COLOR_ACCENT:          RGB        = _t.COLOR_ACCENT;
+export let COLOR_DIM:             RGB        = _t.COLOR_DIM;
+export let COLOR_ENEMY:           RGB        = _t.COLOR_ENEMY;
+export let COLOR_ENEMY_ROWS:      RGB[]      = _t.COLOR_ENEMY_ROWS;
+export let COLOR_ENEMY_BULLET:    RGB        = _t.COLOR_ENEMY_BULLET;
+export let COLOR_EXPLOSION:       RGB        = _t.COLOR_EXPLOSION;
+export let COLOR_FRAME:           RGBAValue  = _t.COLOR_FRAME;
+export let COLOR_HI_SCORE:        RGB        = _t.COLOR_HI_SCORE;
+export let COLOR_SHADOW:          RGBAValue  = _t.COLOR_SHADOW;
+export let COLOR_SHIELD:          RGB        = _t.COLOR_SHIELD;
+export let COLOR_UFO:             RGB        = _t.COLOR_UFO;
+export let DIALOG_BG:             RGB        = _t.DIALOG_BG;
+export let DIALOG_FG:             RGB        = _t.DIALOG_FG;
+export let DIALOG_BTN_YES_BG:     RGB        = _t.DIALOG_BTN_YES_BG;
+export let DIALOG_BTN_YES_FG:     RGB        = _t.DIALOG_BTN_YES_FG;
+export let DIALOG_BTN_NO_BG:      RGB        = _t.DIALOG_BTN_NO_BG;
+export let DIALOG_BTN_NO_FG:      RGB        = _t.DIALOG_BTN_NO_FG;
+export let SPLAT_COLORS:          RGB[]      = _t.SPLAT_COLORS;
+
+export function setActiveTheme(name: ThemeName): void {
+  ACTIVE_THEME = name;
+  _t = themes[name];
+  HAS_SHADOW            = _t.HAS_SHADOW;
+  COLOR_CANVAS_BG       = _t.COLOR_CANVAS_BG;
+  COLOR_H1              = _t.COLOR_H1;
+  COLOR_PLAYER          = _t.COLOR_PLAYER;
+  COLOR_PLAYER_ACTIVE   = _t.COLOR_PLAYER_ACTIVE;
+  COLOR_PLAYER_BULLET   = _t.COLOR_PLAYER_BULLET;
+  COLOR_GAMEOVER_HEADING= _t.COLOR_GAMEOVER_HEADING;
+  COLOR_UI_FONT         = _t.COLOR_UI_FONT;
+  COLOR_LIVES           = _t.COLOR_LIVES;
+  COLOR_ACCENT          = _t.COLOR_ACCENT;
+  COLOR_DIM             = _t.COLOR_DIM;
+  COLOR_ENEMY           = _t.COLOR_ENEMY;
+  COLOR_ENEMY_ROWS      = _t.COLOR_ENEMY_ROWS;
+  COLOR_ENEMY_BULLET    = _t.COLOR_ENEMY_BULLET;
+  COLOR_EXPLOSION       = _t.COLOR_EXPLOSION;
+  COLOR_FRAME           = _t.COLOR_FRAME;
+  COLOR_HI_SCORE        = _t.COLOR_HI_SCORE;
+  COLOR_SHADOW          = _t.COLOR_SHADOW;
+  COLOR_SHIELD          = _t.COLOR_SHIELD;
+  COLOR_UFO             = _t.COLOR_UFO;
+  DIALOG_BG             = _t.DIALOG_BG;
+  DIALOG_FG             = _t.DIALOG_FG;
+  DIALOG_BTN_YES_BG     = _t.DIALOG_BTN_YES_BG;
+  DIALOG_BTN_YES_FG     = _t.DIALOG_BTN_YES_FG;
+  DIALOG_BTN_NO_BG      = _t.DIALOG_BTN_NO_BG;
+  DIALOG_BTN_NO_FG      = _t.DIALOG_BTN_NO_FG;
+  SPLAT_COLORS          = _t.SPLAT_COLORS;
+}
 
 export const NUM_COLORS_IN_SPLAT = 5;
 export const ENEMY_SPEED_INCREASE_PER_LEVEL = 0.18;
