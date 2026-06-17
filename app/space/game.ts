@@ -885,15 +885,6 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       for (let col = 0; col < ENEMY_COLS; col++) {
         const cfg = rowConfig[row];
         const e = k.add([
-          {
-            draw(this: { frame: number }) {
-              k.drawSprite({
-                sprite: cfg.decorSprite,
-                frame: this.frame ?? 0,
-                pos: k.vec2(-ENEMY_DECOR_OFFSET_X * r, -ENEMY_DECOR_OFFSET_Y * r),
-              });
-            },
-          },
           k.sprite(cfg.sprite),
           k.pos(START_X + col * ENEMY_W, START_Y + row * ENEMY_H + (level - 1) * 10 * r),
           k.area(),
@@ -905,6 +896,20 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     }
     aliveEnemies = [...enemies];
     const aliveCols = new Set<number>(enemies.map((e) => (e as unknown as { col: number }).col));
+
+    k.add([{
+      draw() {
+        for (const e of enemies) {
+          if (!(e as unknown as { alive: boolean }).alive) continue;
+          const cfg = rowConfig[(e as unknown as { row: number }).row];
+          k.drawSprite({
+            sprite: cfg.decorSprite,
+            frame: (e as unknown as { frame: number }).frame ?? 0,
+            pos: k.vec2(e.pos.x - ENEMY_DECOR_OFFSET_X * r, e.pos.y - ENEMY_DECOR_OFFSET_Y * r),
+          });
+        }
+      },
+    }, k.z(-1)]);
 
     const shieldPositions = Array.from({ length: NUM_SHIELDS }, (_, i) =>
       Math.round(GUTTER + (i + 0.5) * (GAME_W - GUTTER * 2) / NUM_SHIELDS)
