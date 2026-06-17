@@ -854,19 +854,22 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       k.z(9),
     ]);
 
+    const initialLives = lives;
+    const lifeIconObjs: ReturnType<typeof k.add>[] = [];
+    for (let i = 0; i < initialLives; i++) {
+      lifeIconObjs.push(k.add([
+        ...(HAS_SHADOW ? [{ draw() { k.drawText({ text: "A", font, size: 24 * r, pos: k.vec2(-2 * r, 2 * r), color: shadowRgb(), opacity: SHADOW_A }); } }] : []),
+        k.color(...COLOR_LIVES),
+        k.text("A", { font, size: 24 * r }),
+        k.pos(GUTTER + i * LIVES_ICON_SPACING, GAME_H - UI_Y_TOP - 18 * r),
+        k.fixed(),
+        k.z(10),
+        k.opacity(1),
+        "lifeIcon",
+      ]));
+    }
     function renderLives() {
-      k.get("lifeIcon").forEach((o: ReturnType<typeof k.add>) => o.destroy());
-      for (let i = 0; i < lives; i++) {
-        k.add([
-          ...(HAS_SHADOW ? [{ draw() { k.drawText({ text: "A", font, size: 24 * r, pos: k.vec2(-2 * r, 2 * r), color: shadowRgb(), opacity: SHADOW_A }); } }] : []),
-          k.color(...COLOR_LIVES),
-          k.text("A", { font, size: 24 * r }),
-          k.pos(GUTTER + i * LIVES_ICON_SPACING, GAME_H - UI_Y_TOP - 18 * r),
-          k.fixed(),
-          k.z(10),
-          "lifeIcon",
-        ]);
-      }
+      lifeIconObjs.forEach((icon, i) => { (icon as unknown as { opacity: number }).opacity = i < lives ? 1 : 0; });
     }
     renderLives();
 
