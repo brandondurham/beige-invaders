@@ -57,6 +57,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     background: COLOR_CANVAS_BG,
     canvas,
     crisp: true,
+    debug: process.env.NODE_ENV === 'development',
     height: Math.round(256 * scale),
     loadingScreen: true,
     pixelDensity: 1,
@@ -724,6 +725,9 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
     const shields: GameObj[] = [];
     let ufoObj: GameObj | null = null;
     let ufoSound: { stop: () => void } | null = null;
+    const ufoGain = audioCtx.createGain();
+    ufoGain.gain.value = 0.2;
+    ufoGain.connect(audioCtx.destination);
     const startUfoSound = () => {
       ufoSound?.stop();
       if (!ufoAudioBuf) return;
@@ -731,10 +735,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       const src = audioCtx.createBufferSource();
       src.buffer = ufoAudioBuf;
       src.loop = true;
-      const gain = audioCtx.createGain();
-      gain.gain.value = 0.2;
-      src.connect(gain);
-      gain.connect(audioCtx.destination);
+      src.connect(ufoGain);
       src.start();
       ufoSound = { stop: () => { src.stop(); src.disconnect(); } };
     };
