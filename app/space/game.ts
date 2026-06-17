@@ -1077,7 +1077,9 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
 
     let splatId = 0;
 
-    function spawnBakedSplat(relPixels: RelPixel[], cx: number, cy: number, withFade: boolean, onReady: () => void) {
+    type BakedSplat = { name: string; minX: number; minY: number };
+
+    function prebakeSplat(relPixels: RelPixel[]): Promise<BakedSplat> {
       let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
       for (const px of relPixels) {
         const fx = px.dx * (1 + EXPANSION), fy = px.dy * (1 + EXPANSION);
@@ -1098,26 +1100,34 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
         ctx2d.fillRect(Math.round(fx - minX), Math.round(fy - minY), DRAW_SIZE, DRAW_SIZE);
       }
       const name = `sb${splatId++}`;
-      k.loadSprite(name, offscreen.toDataURL()).onLoad(() => {
-        const baked = k.add([k.sprite(name), k.pos(cx + minX, cy + minY), k.opacity(1), k.z(-1)]);
-        onReady();
-        if (withFade) {
-          const timer = k.loop(1, () => {
-            baked.opacity -= 0.05;
-            if (baked.opacity <= 0) { baked.destroy(); timer.cancel(); }
-          });
-        }
+      return new Promise<BakedSplat>(resolve => {
+        k.loadSprite(name, offscreen.toDataURL()).onLoad(() => resolve({ name, minX, minY }));
       });
     }
 
+    let bakedSplatUp: BakedSplat[] = [];
+    let bakedUfoSplat: BakedSplat[] = [];
+    Promise.all([
+      ...splatUpPool.map(prebakeSplat),
+      ...ufoSplatPool.map(prebakeSplat),
+    ]).then(results => {
+      bakedSplatUp = results.slice(0, splatUpPool.length);
+      bakedUfoSplat = results.slice(splatUpPool.length);
+    });
+
     function paintSplatUp(pos: ReturnType<typeof k.vec2>) {
-      const relPixels = splatUpPool[Math.floor(Math.random() * splatUpPool.length)];
-      spawnBakedSplat(relPixels, Math.round(pos.x), Math.round(pos.y), true, () => {});
+      if (!bakedSplatUp.length) return;
+      const b = bakedSplatUp[Math.floor(Math.random() * bakedSplatUp.length)];
+      const cx = Math.round(pos.x), cy = Math.round(pos.y);
+      const obj = k.add([k.sprite(b.name), k.pos(cx + b.minX, cy + b.minY), k.opacity(1), k.z(-1)]);
+      const t = k.loop(1, () => { obj.opacity -= 0.05; if (obj.opacity <= 0) { obj.destroy(); t.cancel(); } });
     }
 
     function paintUfoSplat(pos: ReturnType<typeof k.vec2>) {
-      const relPixels = ufoSplatPool[Math.floor(Math.random() * ufoSplatPool.length)];
-      spawnBakedSplat(relPixels, Math.round(pos.x), Math.round(pos.y), false, () => {});
+      if (!bakedUfoSplat.length) return;
+      const b = bakedUfoSplat[Math.floor(Math.random() * bakedUfoSplat.length)];
+      const cx = Math.round(pos.x), cy = Math.round(pos.y);
+      k.add([k.sprite(b.name), k.pos(cx + b.minX, cy + b.minY), k.opacity(1), k.z(-1)]);
     }
 
     function explode(pos: ReturnType<typeof k.vec2>) {
