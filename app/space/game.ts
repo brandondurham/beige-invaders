@@ -901,6 +901,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       }
     }
     aliveEnemies = [...enemies];
+    const aliveCols = new Set<number>(enemies.map((e) => (e as unknown as { col: number }).col));
 
     const shieldPositions = Array.from({ length: NUM_SHIELDS }, (_, i) =>
       Math.round(GUTTER + (i + 0.5) * (GAME_W - GUTTER * 2) / NUM_SHIELDS)
@@ -1227,7 +1228,7 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       if (aliveEnemies.length > 0 && Math.random() < aliensBulletChance) {
         type ShooterE = { col: number; pos: { x: number; y: number } };
         const se = aliveEnemies as unknown as ShooterE[];
-        const cols = [...new Set(se.map(e => e.col))];
+        const cols = [...aliveCols];
         const col = cols[Math.floor(Math.random() * cols.length)];
         const shooter = se
           .filter(e => e.col === col)
@@ -1278,6 +1279,9 @@ export function initGame(canvas: HTMLCanvasElement): () => void {
       e.alive = false;
       const idx = aliveEnemies.indexOf(enemy);
       if (idx !== -1) aliveEnemies.splice(idx, 1);
+      if (!aliveEnemies.some((e) => (e as unknown as { col: number }).col === (enemy as unknown as { col: number }).col)) {
+        aliveCols.delete((enemy as unknown as { col: number }).col);
+      }
       alienCount = aliveEnemies.length;
       speedFactor = Math.max(0.04, enemyMoveInterval * (alienCount / TOTAL_ENEMIES));
       score += e.pts;
